@@ -5,12 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
   <script>
-    async function calculate() {
+    async function calculate(btnElement) {
       const a = document.getElementById("input-a").value;
-      const result = await fetch("http://localhost:3000/cal")
+      const b = document.getElementById("input-b").value;
+      const result = await fetch("http://localhost:3000/cal", 
+        {
+          method: "POST",
+          headers: {
+          "Content-Type": "application/json", 
+          "operation": btnElement.id, 
+          },
+          body: JSON.stringify({
+            a: Number(a), 
+            b: Number(b)
+          })
+        }
+      )
       const val = await result.json();
+      console.log(val)
       let upload = document.getElementById("result"); 
-      upload.innerText = val; 
+      upload.innerText = val.result; 
     }
   </script>
 </head>
@@ -18,15 +32,18 @@
   <h2>Calculator</h2>
   <!-- //create a calculator which sends the request to our backend for the same using the post method and the fetch api.  -->
   <div>a: <input id="input-a" type="number" placeholder="enter a"></div>
-  <div>b: <input id="input-a" type="number" placeholder="enter b"></div>
+  <div>b: <input id="input-b" type="number" placeholder="enter b"></div>
   <br>
-  <button onclick="calculate()">add</button>
-  <button onclick="calculate()">sub</button>
-  <button onclick="calculate()">mul</button>
-  <button onclick="calculate()">div</button>
+  <button onclick="calculate(this)" id="sum">add</button>
+  <button onclick="calculate(this)" id="sub">sub</button>
+  <button onclick="calculate(this)" id="mul">mul</button>
+  <button onclick="calculate(this)" id="div">div</button>
 
   <div id="result"></div>
 </body>
 </html>
 
 <!-- //how to send http request,  -->
+
+<!-- for different functions, the longer way is to have different functions for these but who does that. 
+ the end points needs to have a header specifying the operation  -->
