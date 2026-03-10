@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Habit Tracker Board</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="app-header">
+        <div>
+          <h1>Habit Tracker</h1>
+          <p>Organize daily routines and drag habits between stages.</p>
+        </div>
+      </header>
+
+      <main class="app-main">
+        <aside class="categories-panel">
+          <div class="categories-header">
+            <h2>Categories</h2>
+            <button id="addCategoryBtn" class="btn btn-ghost" type="button">+ Category</button>
+          </div>
+          <ul id="categoryList" class="category-list"></ul>
+        </aside>
+
+        <section class="board">
+          <div class="board-toolbar">
+            <h2 id="activeCategoryName">Morning</h2>
+            <form id="addHabitForm" class="add-habit-form">
+              <input
+                type="text"
+                id="habitTitleInput"
+                placeholder="Add a habit for this category..."
+                autocomplete="off"
+              />
+              <select id="habitStatusSelect">
+                <option value="todo">To Do</option>
+                <option value="in-progress">In Progress</option>
+                <option value="done">Done</option>
+              </select>
+              <button class="btn primary" type="submit">Add</button>
+            </form>
+          </div>
+
+          <div class="columns">
+            <div class="column" data-status="todo">
+              <div class="column-header">
+                <span class="column-title">To Do</span>
+                <span class="column-count" data-count-for="todo">0</span>
+              </div>
+              <div class="column-body" data-dropzone="todo"></div>
+            </div>
+
+            <div class="column" data-status="in-progress">
+              <div class="column-header">
+                <span class="column-title">In Progress</span>
+                <span class="column-count" data-count-for="in-progress">0</span>
+              </div>
+              <div class="column-body" data-dropzone="in-progress"></div>
+            </div>
+
+            <div class="column" data-status="done">
+              <div class="column-header">
+                <span class="column-title">Done</span>
+                <span class="column-count" data-count-for="done">0</span>
+              </div>
+              <div class="column-body" data-dropzone="done"></div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./script.js"></script>
+  </body>
+  </html>
+

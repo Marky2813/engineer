@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script>
+    async function calculate() {
+      const a = document.getElementById("input-a").value;
+      const result = await fetch("http://localhost:3000/cal")
+      const val = await result.json();
+      let upload = document.getElementById("result"); 
+      upload.innerText = val; 
+    }
+  </script>
+</head>
+<body>
+  <h2>Calculator</h2>
+  <!-- //create a calculator which sends the request to our backend for the same using the post method and the fetch api.  -->
+  <div>a: <input id="input-a" type="number" placeholder="enter a"></div>
+  <div>b: <input id="input-a" type="number" placeholder="enter b"></div>
+  <br>
+  <button onclick="calculate()">add</button>
+  <button onclick="calculate()">sub</button>
+  <button onclick="calculate()">mul</button>
+  <button onclick="calculate()">div</button>
+
+  <div id="result"></div>
+</body>
+</html>
+
+<!-- //how to send http request,  -->
