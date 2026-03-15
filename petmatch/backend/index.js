@@ -1,8 +1,11 @@
 import express from 'express'
+import cors from 'cors'
+import 'dotenv/config'
 import { createClient } from '@supabase/supabase-js'
 const app = express();
-const supabase = createClient("https://fnqkqblvdkjmntbzgwpx.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZucWtxYmx2ZGtqbW50Ynpnd3B4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MjE1MDQsImV4cCI6MjA4ODk5NzUwNH0.Ak3GbgExFrJN_wsbH9L5r6kCg1IEmBNJ2Xzb7pJLsyQ")
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY)
 const port = 3000;
+app.use(cors())
 app.use(express.json())
 
 app.get("/pets", async (req, res) => {
@@ -28,14 +31,44 @@ app.get("/pets", async (req, res) => {
 
 
 app.post("/pets", async (req, res) => {
+
+  const {data:existing} = await supabase
+  .from('Pet-Profiles')
+  .select()
+  .eq('owner_contact', req.body.owner_contact)
+  .eq('pet_name', req.body.pet_name)
+
+  if(existing.length > 0) {
+    return res.status(400).json({error: 'Pet already registered'})
+  }
+
   const { error } = await supabase
     .from('Pet-Profiles')
-    .insert({ id: 4, pet_name: "Nawab", breed: "American Bully", age: 8, gender: "Male", city: "Delhi", owner_contact: "+91-9871740518", photo_url: "tba" })
+    .insert({pet_name: req.body.pet_name, breed: req.body.breed, age: req.body.age, gender: req.body.gender, city: req.body.city, owner_contact:req.body.owner_contact})
 
+  currentid++
   res.send(error)
 })
 
 // app.get("/pets") not sure how to post get request having query params. no need to have a different get request, this will be handled by the existing get request only.  
+
+app.get("/cities", async (req,res) => {
+  const { data, error } = await supabase
+  .from('Pet-Profiles')
+  .select('city')
+
+  const unique = [...new Set(data.map((d) => d.city))]
+  res.json(unique)
+})
+
+app.get("/breeds", async (req, res) => {
+  const { data, error } = await supabase
+  .from('Pet-Profiles')
+  .select('breed')
+
+  const unique = [...new Set(data.map((d) => d.breed))]
+  res.json(unique)
+})
 
 app.listen(port, () => {
   console.log("listening to port 3000!")
