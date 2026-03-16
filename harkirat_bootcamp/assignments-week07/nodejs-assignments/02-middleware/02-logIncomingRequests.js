@@ -3,8 +3,11 @@
 const express = require('express');
 const app = express();
 
+
+// app.use(express.json());
 function logRequests(req, res, next) {
-    // write the logic for request log here
+    console.log(`${req.method} ${req.url} - ${new Date().toISOString()}`);
+    next(); 
 }
 
 app.use(logRequests);
@@ -14,3 +17,5 @@ app.get('/', (req, res) => {
 });
 
 module.exports = app;
+
+//very cool, learnt a lot about how to reverse engineer from the tests. good stuff. one step further in becoming a cracked engineer

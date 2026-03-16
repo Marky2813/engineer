@@ -1,7 +1,6 @@
 /**
   You need to create a HTTP server in Node.js which will handle the logic of an authentication server.
   - Don't need to use any database to store the data.
-
   - Save the users and their signup/login data in an array in a variable
   - You can store the passwords in plain text (as is) in the variable for now
 
