@@ -15,6 +15,17 @@ let numberOfRequestsForUser = {};
 setInterval(() => {
     numberOfRequestsForUser = {};
 }, 1000)
+//req.headers['header-name']
+app.use(function(req,res,next) {
+  let user = req.headers['user-id']
+  if(numberOfRequestsForUser.user > 5) {
+    res.status(404).send("Number of requests exceeded.")
+  } else {
+    numberOfRequestsForUser.user = (numberOfRequestsForUser.user || 0) + 1;
+    next(); 
+  }
+
+})
 
 app.get('/user', function(req, res) {
   res.status(200).json({ name: 'john' });
