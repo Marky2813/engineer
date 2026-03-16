@@ -65,6 +65,7 @@ describe('Todo API', () => {
 
       res.on('end', () => {
         const todos = JSON.parse(data);
+        console.log(todos)
         expect(Array.isArray(todos)).toBe(true);
         expect(todos.length).toBe(1);
         expect(todos[0].title).toBe(todo.title);

@@ -39,11 +39,80 @@
 
   Testing the server - run `npm run test-todoServer` command in terminal
  */
-  const express = require('express');
-  const bodyParser = require('body-parser');
-  
-  const app = express();
-  
-  app.use(bodyParser.json());
-  
-  module.exports = app;
+const express = require('express');
+const bodyParser = require('body-parser');
+const fs = require('fs/promises');
+const path = require('path');
+
+const filePath = path.join(__dirname, '/todos.json');
+const app = express();
+
+app.use(bodyParser.json());
+
+app.get("/todos", async (req,res) => {
+  let data = (await fs.readFile(filePath, 'utf8'));
+  return res.status(200).send(data); 
+})
+
+app.get("/todos/:id", async (req, res) => {
+  let data = JSON.parse(await fs.readFile(filePath, 'utf8'));
+  const todo = data.filter((e) => e.id == req.params.id)
+  if(todo.length > 0) {
+    return res.status(200).send(todo[0]);
+  } else {
+    return res.status(404).send("NOT FOUND");
+  }
+
+})
+
+app.put('/todos/:id', async (req, res) => {
+  let data = JSON.parse(await fs.readFile(filePath, 'utf8'));
+  let updated = false; 
+  for(let i = 0; i < data.length; i++) {
+    if(data[i].id == req.params.id) {
+      data[i].description = req.body.description; 
+      data[i].title = req.body.title; 
+      updated = true; 
+      break; 
+    }
+  }
+  if(updated) {
+    await fs.writeFile(filePath, JSON.stringify(data));
+    return res.status(200).send("OK")
+  } else {
+    return res.status(404).send("NOT FOUND")
+  }
+})
+
+app.delete('/todos/:id', async (req, res) => {
+  let data = JSON.parse(await fs.readFile(filePath, 'utf8'));
+  let alteredData; 
+  for(let i = 0; i < data.length; i++) {
+    if(data[i].id == req.params.id) {
+      alteredData = data.splice(i, 1);
+      break; 
+    }
+  }
+  if(alteredData.length > 0) {
+    await fs.writeFile(filePath, JSON.stringify(alteredData));
+    return res.status(200).send("OK"); 
+  } else {
+    return res.status(404).send("NOT FOUND"); 
+  }
+})
+
+app.post("/todos", async (req, res) => {
+  let data = JSON.parse(await fs.readFile(filePath, 'utf8'));
+
+  const id = data.length + 1;
+  const newTodo = { "title": req.body.title, "completed": req.body.completed, description: req.body.description, "id": id }
+  data.push(newTodo)
+
+  await fs.writeFile(filePath, JSON.stringify(data));
+
+  return res.status(201).json({ "id": newTodo.id });
+})
+
+
+
+module.exports = app;
