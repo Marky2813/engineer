@@ -2,18 +2,44 @@ import express from 'express'
 import cors from 'cors'
 import 'dotenv/config'
 import { createClient } from '@supabase/supabase-js'
+import { decode } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken'; 
 const app = express();
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY)
 const port = 3000;
+const users = []; 
+
 app.use(cors())
 app.use(express.json())
+
+function authMiddleware(req, res, next) {
+  const token = req.headers.token; 
+  if(!token) {
+    res.status(403).send("You are not signed in!");
+    
+  }
+
+  const decoded = jwt.verify(token, "sarthak123"); 
+  const username = decoded.username;
+  const id = decoded.userId; 
+
+
+  if(!username) {
+    res.status(403).send("malformed token!"); 
+  }
+
+  req.username = username; 
+  req.userid = id;
+
+  next(); 
+
+}
 
 app.get("/pets", async (req, res) => {
   //fetch all the profiles from the supabase database and send it over to the base 
   //we have 2 query params for a filtered search, they are city and breed. now either the user will use no filter, or city or breed or both. how do we handle all this using one get request. 
   let query = supabase.from('Pet-Profiles').select();
-  console.log(query)
-
+  
   if(req.query.city) {
     query = query.ilike("city", req.query.city);
   }
@@ -30,7 +56,7 @@ app.get("/pets", async (req, res) => {
 })
 
 
-app.post("/pets", async (req, res) => {
+app.post("/pets", authMiddleware,async (req, res) => {
 
   const {data:existing} = await supabase
   .from('Pet-Profiles')
@@ -44,13 +70,62 @@ app.post("/pets", async (req, res) => {
 
   const { error } = await supabase
     .from('Pet-Profiles')
-    .insert({pet_name: req.body.pet_name, breed: req.body.breed, age: req.body.age, gender: req.body.gender, city: req.body.city, owner_contact:req.body.owner_contact})
+    .insert({pet_name: req.body.pet_name, breed: req.body.breed, age: req.body.age, gender: req.body.gender, city: req.body.city, owner_contact:req.body.owner_contact, user_id:req.userid})
 
   currentid++
   res.send(error)
 })
 
-// app.get("/pets") not sure how to post get request having query params. no need to have a different get request, this will be handled by the existing get request only.  
+// app.get("/pets") not sure how to post get request having query params. no need to have a different get request, this will be handled by the existing get request only.
+
+app.post("/signup", async (req, res) => {
+  const username = req.body.username; 
+  const password = req.body.password; 
+  const { data: existingUsername, error: err } = await supabase
+   .from("users")
+   .select()
+   .eq("username", username)
+  if(existingUsername.length > 0) {
+    res.status(403).send("user already exists");
+  }
+
+  
+  const { data, error } = await supabase
+    .from("users")
+    .insert({
+      username: username, password: password
+    })
+
+  res.send("signup successfull")
+
+})
+
+app.post("/signin", async (req, res) => {
+  const username = req.body.username; 
+  const password = req.body.password; 
+  const { data, error } = await supabase
+   .from("users")
+   .select()
+   .eq("username", username)
+   .eq("password", password)
+  if(data.length === 0) {
+    res.status(403).send("Incorrect credentials");
+    return; 
+  }
+
+  const { data:user } = await supabase
+  .from("users")
+  .select()
+  .eq("username", username)
+  .single()
+
+  const token = jwt.sign({username: user.username, userId:user.id }, "sarthak123"); 
+  res.json({
+    token:token,
+  }) 
+
+
+})
 
 app.get("/cities", async (req,res) => {
   const { data, error } = await supabase
@@ -71,11 +146,13 @@ app.get("/breeds", async (req, res) => {
 })
 
 app.listen(port, () => {
-  console.log("listening to port 3000!")
+  console.log("listening to port 3000!");
+  console.log(users)
 })
 
-//current objective is to build the get and the post network requests, test it in postman. no ai or gemini.
 
-//following things which are needed to be taken care of
-// photo url in the form or will be using multiple photo,
-//id ka kya scene hai. 
+
+//sign in page, sign up page. view my profile section. 
+//as per idea, ek insaan can have multiple profiles. but they will be logging in differently and let us keep the maximum pet profiles per person to be 3. 
+//there will be no change in getting the list profiles apart from that we need to remove my profile from the list,
+//we need to have a my profile section will be displaying the details about my profile. 
