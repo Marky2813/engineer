@@ -171,3 +171,5 @@ function Home() {
 }
 
 export default Home; 
+
+//for the frontend part, if the jwt is present in the localstorage then we can create profile else we cannot for rendering the list, we need to make sure out profile isn't there. 
