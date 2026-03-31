@@ -156,7 +156,7 @@ app.post("/issue", authMiddleware, (req, res) => {
   }
 
   issues.push({
-    id:boards_id++,
+    id:issues_id++,
     title:title, 
     orgId:orgId, 
     boardId:boardId
@@ -166,13 +166,36 @@ app.post("/issue", authMiddleware, (req, res) => {
 })
 
 //READ
-app.get("/orgs", (req, res) => {})
-app.get("/boards", (req, res) => {})
-app.get("/issues", (req, res) => {})
-app.get("/members", (req, res) => {})
+app.get("/orgs", authMiddleware, (req, res) => {
+  res.json({
+    orgs: orgs,
+  })
+})
+app.get("/boards", authMiddleware, (req, res) => {
+  const orgId = Number(req.body.orgId); 
+  res.json({
+    boards:boards.filter(board => board.orgId === orgId),
+  })
+})
+app.get("/issues", authMiddleware, (req, res) => {
+  const orgId = Number(req.body.orgId); 
+  const boardId = Number(req.body.boardId)
+  res.json({
+    issues:issues.filter(issue => issue.boardId === boardId && issue.orgId === orgId),
+  })
+})
+app.get("/members", authMiddleware, (req, res) => {
+  const orgId = Number(req.body.orgId); 
+  const org = orgs.find(org => org.orgId === orgId)
+
+  const members = org.members;
+  res.json({
+    members:members
+  })
+})
 
 //UPDATE
-app.put("/issues", (req, res) => {})
+app.put("/issues", authMiddleware, (req, res) => {})
 
 //DELETE
 app.delete("/member", authMiddleware, (req, res) => {
