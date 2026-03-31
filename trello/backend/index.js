@@ -3,10 +3,17 @@
 // issues
 // boards
 
-const users = [];
-const orgs = [];
+const users = [{ username: 'messagetosarthak@gmail.com', password: '123', id: 1 },
+  { username: 'messagetorohan@gmail.com', password: '123', id: 2 }];
+const orgs = [{
+    title: "Sarthak's team",
+    description: "Sarthak's team org",
+    id: 1,
+    admin: 1,
+    members: [ 2 ]
+  }];
 const issues = [];
-const backend = [];
+const boards = [];
 
 let users_id = 1;
 let orgs_id = 1;
@@ -23,8 +30,6 @@ import { authMiddleware } from './middleware.js';
 const app = express();
 const port = 3000; 
 app.use(express.json())
-
-
 
 //CREATE
 app.post("/signup", (req, res) => {
@@ -104,10 +109,64 @@ app.post("/add-member-to-org", authMiddleware, (req, res) => {
   res.send("Member added!")
 })
 
-app.post("/board", (req, res) => {})
-app.post("/issue", (req, res) => {})
+app.post("/board", authMiddleware, (req, res) => {
+  //board will belong to a particular org. 
+  const userId = req.userId; 
+  const orgId = Number(req.body.orgId); 
+  const title = req.body.title;
+
+  //all the members and the admin of the org can create boards
+
+  const org = orgs.find((org) => org.id === orgId);
+  if(!org) {
+    return res.status(403).send("org does not exist"); 
+  }
+
+  if(!(org.admin === userId || org.members.find(member => member === userId)))
+  {
+   return  res.status(403).send("cannot access org, neither admin nor member"); 
+  }
+
+  boards.push({
+    id:boards_id++,
+    title:title, 
+    orgId:orgId 
+  })
+  
+  console.log(boards)
+  res.send("Board created")
+})
+
+app.post("/issue", authMiddleware, (req, res) => {
+  const userId = req.userId; 
+  const orgId = Number(req.body.orgId); 
+  const title = req.body.title;
+  const boardId = Number(req.body.boardId); 
+
+  //all the members and the admin of the org can create boards
+
+  const org = orgs.find((org) => org.id === orgId);
+  if(!org) {
+    res.status(403).send("org does not exist"); 
+  }
+
+  if(!(org.admin === userId || org.members.find(member => member === userId)))
+  {
+    res.status(403).send("cannot access org, neither admin nor member"); 
+  }
+
+  issues.push({
+    id:boards_id++,
+    title:title, 
+    orgId:orgId, 
+    boardId:boardId
+  })
+  console.log(issues)
+  res.send("Issue created")
+})
 
 //READ
+app.get("/orgs", (req, res) => {})
 app.get("/boards", (req, res) => {})
 app.get("/issues", (req, res) => {})
 app.get("/members", (req, res) => {})
@@ -132,6 +191,8 @@ app.delete("/member", authMiddleware, (req, res) => {
 
   res.send("Member removed!")
 })
+
+
 app.listen(port, () => {
   console.log("hello from port 3000!")
 })
