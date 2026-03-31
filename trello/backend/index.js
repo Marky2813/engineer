@@ -141,7 +141,8 @@ app.post("/issue", authMiddleware, (req, res) => {
   const userId = req.userId; 
   const orgId = Number(req.body.orgId); 
   const title = req.body.title;
-  const boardId = Number(req.body.boardId); 
+  const boardId = Number(req.body.boardId);
+  const status = req.body.status || "pending";  
 
   //all the members and the admin of the org can create boards
 
@@ -159,7 +160,8 @@ app.post("/issue", authMiddleware, (req, res) => {
     id:issues_id++,
     title:title, 
     orgId:orgId, 
-    boardId:boardId
+    boardId:boardId, 
+    status:status
   })
   console.log(issues)
   res.send("Issue created")
@@ -195,7 +197,16 @@ app.get("/members", authMiddleware, (req, res) => {
 })
 
 //UPDATE
-app.put("/issues", authMiddleware, (req, res) => {})
+app.put("/issues", authMiddleware, (req, res) => {
+  const userId = req.userId; 
+  const issueId = Number(req.body.issueId); 
+
+  const issue = issue.find(issue => issue.id === issueId); 
+  issue.status = req.body.status; 
+
+  res.send("issue state updated")
+
+})
 
 //DELETE
 app.delete("/member", authMiddleware, (req, res) => {
