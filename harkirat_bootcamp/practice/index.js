@@ -21,7 +21,7 @@ app.post("/signup", async (req, res) => {
 
   //now we need to check if the username already exists, if yes then return error that the particular username already exists. 
 
-  const usernameExists = await userModel.findOne((e) => e.username === username); 
+  const usernameExists = await userModel.findOne({username: username}); 
 
   if(usernameExists) {
     return res.status(403).send("username already exists, please use a different one"); 
@@ -30,10 +30,10 @@ app.post("/signup", async (req, res) => {
   //username dne, then we need to create user
 
   const newUser = await userModel.create({
-    username, password
+    "username":username, "password":password,
   })
 
-  res.send(users)
+  res.send(newUser)
 });
 
 
@@ -43,7 +43,7 @@ app.post("/signin", async (req, res) => {
 
   //check in users if we have a user with the same usernaem and password
 
-  const userExists = await userModel.findOne((e) => e.username === username && e.password === password); 
+  const userExists = await userModel.findOne({username:username, password: password}); 
   
   if(!userExists) {
     return res.status(403).send("incorrect credentials!"); 
@@ -57,25 +57,28 @@ app.post("/signin", async (req, res) => {
     token: token, 
   })
 }); 
-app.post("/todo", authMiddleware, (req, res) => {
+
+app.post("/todo", authMiddleware, async (req, res) => {
   const userId = req.userId; 
   const title = req.body.title; 
   const description = req.body.description; 
 
-  todo.push({
-    title, description, userId, todoId:todoID++
+  const newTodo = await todoModel.create({
+    title, description, userId
   })
 
-  res.send(todo);
+  res.send(newTodo);
 }); //authenticated 
 
 
-app.delete("/todo", authMiddleware, (req, res) => {
+app.delete("/todo", authMiddleware, async (req, res) => {
   const userId = req.userId;
-  const todoId = Number(req.body.todoId); 
-  todo = todo.filter((todo) => todo.userId !== userId && todo.todoId !== todoId)
+  const title = req.body.title; 
+  const description = req.body.description;
+  
+  const deletedTodo = await todoModel.deleteOne({userId, title, description});
 
-  res.send(todo)
+  res.send(deletedTodo)
 }); //authenticated 
 
 
