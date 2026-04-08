@@ -10,7 +10,7 @@ export function authMiddleware(req, res, next) {
   const decoded = jwt.verify(token, "123"); 
   const id = decoded.userId; 
 
-
+  console.log(decoded)
   if(!id) {
     res.status(403).send("malformed token!"); 
   }

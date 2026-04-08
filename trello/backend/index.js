@@ -2,21 +2,20 @@
 // orgs
 // issues
 // boards
+import { userModel, orgsModel, boardsModel, issuesModel } from './models.js';
 
-const users = [{ username: 'messagetosarthak@gmail.com', password: '123', id: 1 },
-  { username: 'messagetorohan@gmail.com', password: '123', id: 2 }];
-const orgs = [{
-    title: "Sarthak's team",
-    description: "Sarthak's team org",
-    id: 1,
-    admin: 1,
-    members: [ 2 ]
-  }];
+// const users = [{ username: 'messagetosarthak@gmail.com', password: '123', id: 1 },
+//   { username: 'messagetorohan@gmail.com', password: '123', id: 2 }];
+// const orgs = [{
+//     title: "Sarthak's team",
+//     description: "Sarthak's team org",
+//     id: 1,
+//     admin: 1,
+//     members: [ 2 ]
+//   }];
 const issues = [];
 const boards = [];
 
-let users_id = 1;
-let orgs_id = 1;
 let boards_id = 1;
 let issues_id = 1;
 
@@ -32,198 +31,234 @@ const port = 3000;
 app.use(express.json())
 
 //CREATE
-app.post("/signup", (req, res) => {
+app.post("/signup", async (req, res) => {
   const username = req.body.username;
   const password = req.body.password; 
 
-  const usernameExists = users.find((ui) => ui.username === username);
+  const usernameExists = await userModel.findOne({username:username});
   if(usernameExists) {
-    res.status(403).send("User already exists")
+   return res.status(403).send("User already exists")
   }
 
   
-  users.push({
+  const newUser = await userModel.create({
     username: username, 
     password: password,
-    id: users_id++,
   })
 
-  res.send("signup successful")
+  res.send("signup successful", newUser._id)
 })
-app.post("/signin", (req, res) => {
+app.post("/signin", async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
 
-  const userExists = users.find(user => user.username === username && user.password === password);
+  const userExists = await userModel.findOne({username:username, password:password});
 
-  if(!userExists) res.status(403).send("Incorrect credentials");
+  if(!userExists) 
+    {
+     return res.status(403).send("Incorrect credentials");
+    }
+  const token = jwt.sign({userId: userExists._id}, "123")
 
-  const token = jwt.sign({userId: userExists.id}, "123")
-
-  console.log(users)
+  console.log(userExists)
 
   res.json({
     token:token
   })
 })
-app.post("/org", authMiddleware, (req, res) => {
+app.post("/org", authMiddleware, async (req, res) => {
     const userId = req.userId;
     
     //it also needs to be checked that no 2 orgs have the same name. 
 
-    orgs.push({
+    const newOrg = await orgsModel.create({
       title: req.body.title, 
       description: req.body.description, 
-      id: orgs_id++, 
       admin: userId, 
       members: [], 
     })
 
-    console.log(orgs)
+    console.log(newOrg)
 
     res.json({
       message: "org created", 
-      id: orgs_id - 1,
+      id: newOrg._id,
     })
 })
 
-app.post("/add-member-to-org", authMiddleware, (req, res) => {
+app.post("/add-member-to-org", authMiddleware, async (req, res) => {
   //only admins of a particular org can add members to that org. the request should also have information about which org are we referring too  
   const userId = req.userId; //person making the request, needs to be the admin
-  const orgId =  Number(req.body.orgId); //this is the org being referred to
-  const memberId = users.find((e) => e.username === req.body.member).id; //the member needs to be added 
+  const orgId =  req.body.orgId; //this is the org being referred to
+  const memberName = req.body.member 
+  //the member needs to be added 
+  
+  //the request will be having the username of the member, from that we need to extract the memberId. 
+  const memberId = await userModel.findOne({
+    username: memberName
+  })
+  
+  const org = await orgsModel.findOne({
+    _id:orgId, 
+  })
+
+  console.log(org.admin, userId)
   
   //memberId cannot be the admin of the org, if member is already a part of the org then say member already exists. 
-  if(orgs[orgId-1].admin !== userId) {
+  if(!org || org.admin.toString() !== userId) {
     return res.status(403).send("You cannot make changes to this org since you are not the admin");
   }
 
-  if(orgs[orgId-1].members.find(member => member === memberId)) {
+  if(org.members.find((e) => e === memberId)) {
     return res.send("member already exists")
   }
 
-  orgs[orgId-1].members.push(memberId);
+  const memberAdded = await orgsModel.updateOne({_id:orgId}, {
+    $push: {members:memberId}
+  });
 
-  console.log(orgs)
+  console.log(org)
 
-  res.send("Member added!")
+  res.send("Member added!", memberAdded)
 })
 
-app.post("/board", authMiddleware, (req, res) => {
+app.post("/board", authMiddleware, async (req, res) => {
   //board will belong to a particular org. 
   const userId = req.userId; 
-  const orgId = Number(req.body.orgId); 
+  const orgId = req.body.orgId; 
   const title = req.body.title;
 
   //all the members and the admin of the org can create boards
 
-  const org = orgs.find((org) => org.id === orgId);
+  const org = await orgsModel.findOne({_id:orgId})
   if(!org) {
     return res.status(403).send("org does not exist"); 
   }
 
-  if(!(org.admin === userId || org.members.find(member => member === userId)))
+  if(!(org.admin.toString() === userId || org.members.find(member => member.toString() === userId)))
   {
    return  res.status(403).send("cannot access org, neither admin nor member"); 
   }
 
-  boards.push({
+  const newBoard = await boardsModel.create({
     id:boards_id++,
     title:title, 
     orgId:orgId 
   })
   
-  console.log(boards)
-  res.send("Board created")
+
+  res.json({
+    message: "board created", 
+    boardId: newBoard._id, 
+  })
 })
 
-app.post("/issue", authMiddleware, (req, res) => {
+app.post("/issue", authMiddleware, async (req, res) => {
   const userId = req.userId; 
-  const orgId = Number(req.body.orgId); 
+  const orgId = req.body.orgId; 
   const title = req.body.title;
-  const boardId = Number(req.body.boardId);
+  const boardId = req.body.boardId;
   const status = req.body.status || "pending";  
 
   //all the members and the admin of the org can create boards
 
-  const org = orgs.find((org) => org.id === orgId);
+  const org = await orgsModel.findOne({
+  _id:orgId
+});
   if(!org) {
     res.status(403).send("org does not exist"); 
   }
 
-  if(!(org.admin === userId || org.members.find(member => member === userId)))
+  if(!(org.admin.toString() === userId || org.members.find(member => member.toString() === userId)))
   {
     res.status(403).send("cannot access org, neither admin nor member"); 
   }
 
-  issues.push({
-    id:issues_id++,
+  const newIssue = await issuesModel.create({
     title:title, 
     orgId:orgId, 
     boardId:boardId, 
     status:status
   })
-  console.log(issues)
-  res.send("Issue created")
+  
+  res.json({
+    message:"Issue created", 
+    issueId: newIssue._id 
+  })
 })
 
 //READ
-app.get("/orgs", authMiddleware, (req, res) => {
+app.get("/orgs", authMiddleware, async (req, res) => {
+  const getOrgs = await orgsModel.find(); 
+  
   res.json({
-    orgs: orgs,
+    orgs: getOrgs,
   })
 })
-app.get("/boards", authMiddleware, (req, res) => {
-  const orgId = Number(req.body.orgId); 
+app.get("/boards", authMiddleware, async (req, res) => {
+  const orgId = req.body.orgId; 
+  const allBoards = await boardsModel.find({orgId}); 
   res.json({
-    boards:boards.filter(board => board.orgId === orgId),
+    boards:allBoards,
   })
 })
-app.get("/issues", authMiddleware, (req, res) => {
-  const orgId = Number(req.body.orgId); 
-  const boardId = Number(req.body.boardId)
+app.get("/issues", authMiddleware, async (req, res) => {
+  const orgId = (req.body.orgId); 
+  const boardId = (req.body.boardId);
+  const issues = await issuesModel.find({
+    orgId, boardId
+  })
   res.json({
-    issues:issues.filter(issue => issue.boardId === boardId && issue.orgId === orgId),
+    issues
   })
 })
-app.get("/members", authMiddleware, (req, res) => {
-  const orgId = Number(req.body.orgId); 
-  const org = orgs.find(org => org.orgId === orgId)
-
-  const members = org.members;
+app.get("/members", authMiddleware, async (req, res) => {
+  const orgId = req.body.orgId; 
+  const org = await orgsModel.find({_id:orgId})
+ 
   res.json({
-    members:members
+    members:org[0].members
   })
 })
 
 //UPDATE
-app.put("/issues", authMiddleware, (req, res) => {
+app.put("/issues", authMiddleware, async (req, res) => {
   const userId = req.userId; 
-  const issueId = Number(req.body.issueId); 
+  const issueId = req.body.issueId; 
 
-  const issue = issue.find(issue => issue.id === issueId); 
-  issue.status = req.body.status; 
-
-  res.send("issue state updated")
-
+  const issueUpdated = await issuesModel.updateOne({_id:issueId} , {
+    $set:{status:"completed"}
+  })
+  res.json({
+    message:"issue has been updated", 
+    id:issueUpdated._id
+  })
 })
 
 //DELETE
-app.delete("/member", authMiddleware, (req, res) => {
+app.delete("/member", authMiddleware, async (req, res) => {
   const userId = req.userId; //person making the request, needs to be the admin
-  const orgId =  Number(req.body.orgId); //this is the org being referred to
-  const memberId = users.find((e) => e.username === req.body.member).id; //the member needs to be added 
+  const orgId =  req.body.orgId; //this is the org being referred to
+  const memberName = req.body.member;
   
+  const memberId = await userModel.findOne({
+    username:memberName
+  })//the member needs to be added 
+  const org = await orgsModel.findOne({_id:orgId}); 
   //memberId cannot be the admin of the org, if member is already a part of the org then say member already exists. 
-  if(orgs[orgId-1].admin !== userId) {
+  console.log(org, memberId)
+  if(org.admin.toString() !== userId) {
     return res.status(403).send("You cannot make changes to this org since you are not the admin");
   }
 
-  orgs[orgId-1].members = orgs[orgId-1].members.filter(member => member !== memberId);
+  const removeMember = await orgsModel.updateOne({_id:orgId}, {
+    $pull: {members:memberId._id}
+  })
 
-  console.log(orgs)
-
-  res.send("Member removed!")
+  res.json({
+    message:"Member removed", 
+    id:memberId, 
+  })
 })
 
 
