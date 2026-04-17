@@ -9,7 +9,7 @@ async function encodeImageToBase64(imagePath) {
 }
 
 // Read and encode the image
-const imagePath = "C:/Users/Sarthak/Downloads/IMG-20251021-WA0001.jpg";
+const imagePath = "C:/Users/Sarthak/Downloads/weightTransformation.jpeg";
 const base64Image = await encodeImageToBase64(imagePath);
 
 
@@ -27,7 +27,7 @@ const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         content: [
           {
             type: 'text',
-            text: `A hyper-realistic full-body portrait of the shorter man from the reference image, now with a lean, muscular, and athletic physique. Maintain the identical facial bone structure, jawline, and specific facial features of the subject. He is standing confidently in a modern, high-end gym lobby with subtle, cinematic overhead lighting. Authentic skin tones with natural pores and sweat glisten. Neutral, authentic facial expression. 8k resolution, shot on 35mm lens, highly detailed textures, realistic muscle definition without exaggeration.`,
+            text: `A hyper-realistic full-body portrait of the subject from the reference image(he is 6ft tall, current weight 150kg), now with a slim physique(target weight 100kg). Maintain the identical facial bone structure, jawline, and specific facial features of the subject. Also ensure that the weight loss is consistent throughout the body structure. He is standing confidently in a modern, high-end gym lobby with subtle, cinematic overhead lighting. Authentic skin tones with natural pores and sweat glisten. Neutral, authentic facial expression. 8k resolution, shot on 35mm lens, highly detailed textures, realistic muscle definition without exaggeration.`,
           },
           {
             type: 'image_url',
