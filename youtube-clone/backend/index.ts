@@ -98,8 +98,23 @@ app.post('/signin', async (req, res) => {
   })
 })
 
+app.get("/videos", async (req, res) => {
+  const videos = await prisma.uploads.findMany({
+    include: {user : { select: { id: true, channelName: true, profilePicture: true, banner: true }}}, 
+    orderBy: { createdAt: "desc"}
+  })
+  if(!videos) res.status(400).send("Unable to get videos"); 
+  res.json(videos)
+})
 
-
+app.get("/videos/:id", async (req, res) => {
+  const video = await prisma.uploads.findUnique({
+    where: { id: req.params.id }, 
+    include: { user : {select: { id: true, channelName: true, profilePicture: true, banner: true, subscriberCount: true}}}
+  })
+  if(!video) res.status(400).send("Unable to get videos"); 
+  res.json(video)
+})
 
 
 app.listen(3000, () => {
