@@ -29,6 +29,8 @@ model Uploads {
   id              String    @id  @default(uuid())
   videoUrl        String
   userId          String
+  thumbnail       String
+  description     String?
   user            User      @relation(fields:[userId], references: [id])
   createdAt       DateTime  @default(now())
 }

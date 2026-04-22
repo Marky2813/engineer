@@ -9,6 +9,20 @@ import { z } from "zod/v4";
 import { prisma } from './db'; 
 import { password } from "bun";
 
+function authMiddleWare(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const token = req.headers.authorization?.split(" ")[1]; 
+  if(!token) {
+    return res.status(400).send("Unauthorized")
+  } 
+  try {
+    const decoded = jwt.verify(token, "1234") as  { username: string };
+    req.body.username = decoded.username;
+    next();
+  } catch (err) { 
+    return res.status(400).send("Unauthorized"); 
+  }
+}
+ 
 const app = express(); 
 const saltrounds = 10; 
 app.use(cors())
@@ -16,6 +30,7 @@ app.use(express.json());
 
 
 //what i am able to understand is that using zod we will first define the signup schema. what all should our signup schema contain? username, password, gender. then we will validate the request body using this schema. if the validation is successful then we will check if the user already exists in the database. if the user already exists then we will return an error message. if the user does not exist then we will hash the password and store the user in the database.
+
 
 const signupSchema = z.object({
   username: z.string().min(3),
@@ -28,6 +43,12 @@ const signupSchema = z.object({
 const signinSchema = z.object({
   username:z.string().min(3), 
   password:z.string().min(6)
+})
+
+const uploadSchema = z.object({ 
+  videoUrl: z.string().min(1),
+  userId: z.string().min(1),
+  thumbnail: z.string().min(1)
 })
 
 app.post('/signup', async (req, res) => {
@@ -116,6 +137,33 @@ app.get("/videos/:id", async (req, res) => {
   res.json(video)
 })
 
+app.post("/upload", authMiddleWare, async (req, res) => {
+  // Handle video upload logic here
+  const result = uploadSchema.safeParse(req.body);
+  if(!result.success) { 
+    return res.status(400).json({
+      error: result.error.message
+    })
+  }
+  // check if the user exists in the database 
+  const userexists = await prisma.user.findUnique({
+    where: {
+      id: result.data.userId
+    }
+  })
+
+  if(!userexists) {
+    return res.status(400).json({
+      message: "User does not exist"
+    })
+  }
+
+  const uploaded = await prisma.uploads.create({
+    data:result.data,
+  })
+
+  res.send(uploaded)
+})
 
 app.listen(3000, () => {
   console.log("listening to port 3000!")
