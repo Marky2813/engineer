@@ -13,6 +13,8 @@ const Upload = () => {
         Authorization: `Bearer ${localStorage.getItem("token")}`
       }
     })
+    console.log("video uploaded", data.data);
+    window.location.href = "/";
     } catch (err) {
       console.error(err);
     }

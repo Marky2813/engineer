@@ -48,7 +48,8 @@ const signinSchema = z.object({
 const uploadSchema = z.object({ 
   videoUrl: z.string().min(1),
   userId: z.string().min(1),
-  thumbnail: z.string().min(1)
+  thumbnail: z.string().min(1), 
+  description: z.string().min(1)
 })
 
 app.post('/signup', async (req, res) => {
