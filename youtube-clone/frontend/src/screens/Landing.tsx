@@ -9,8 +9,14 @@ export function Landing() {
   useEffect(() => {
     axios.get("http://localhost:3000/videos")
       .then(res => {
+        res.data.forEach(async (e) => {
+          if(e.thumbnail.split('.')[2] == "jpeg") {
+            const getFileUrl = await axios.post("http://localhost:3000/getThumbnailUrl", { thumbnailPath:e.thumbnail});
+            e.thumbnail = getFileUrl.data.getUrl;
+          }
+        })
         setVideos(res.data);
-        console.log(res.data)
+        console.log(res.data);
       })
       .catch(err => console.error(err))
   }, [])

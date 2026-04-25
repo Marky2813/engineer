@@ -29,7 +29,7 @@ const command = new PutBucketCorsCommand({
   CORSConfiguration: {
     CORSRules: [
       {
-        AllowedOrigins: ["http://localhost:3001"],
+        AllowedOrigins: ["http://localhost:3001", "http://localhost:3000"],
         AllowedMethods: ["PUT", "GET"],
         AllowedHeaders: ["*"],
         MaxAgeSeconds: 3000,
@@ -198,7 +198,7 @@ app.post("/upload", authMiddleWare, async (req, res) => {
   res.send(uploaded)
 })
 
-app.post("/getPresignedUrl", async (req, res) => {
+app.post("/getPresignedUrlVideo", async (req, res) => {
     //we are not going to be sharing the final url where the video is going to be published becasue we cannot make it public., 
     //key ke liye it should be math.random + name of the file. 
     const videoPath = "video" + Math.random() +".mp4"
@@ -219,6 +219,37 @@ app.post("/getPresignedUrl", async (req, res) => {
 
   app.post("/getVideoUrl", async (req, res) => { 
     const path = req.body.videoPath; 
+    const getUrl = await getSignedUrl(
+  S3,
+  new GetObjectCommand({ Bucket: "youtube-clone-2813", Key: path }),
+  { expiresIn: 3600 }, // Valid for 1 hour
+);
+  res.json({
+    getUrl
+  })
+  })
+
+  app.post("/getPresignedUrlThumbnail", async (req, res) => {
+    //we are not going to be sharing the final url where the video is going to be published becasue we cannot make it public., 
+    //key ke liye it should be math.random + name of the file. 
+    const thumbnailPath = "video" + Math.random() +".jpeg"
+    const putUrl = await getSignedUrl(
+  S3,
+  new PutObjectCommand({
+    Bucket: "youtube-clone-2813",
+    Key: thumbnailPath, //key is we need to generate our own key. 
+    ContentType: "image/jpeg",
+  }),
+  { expiresIn: 3600 },
+);
+  res.json({
+    putUrl: putUrl, 
+    key: thumbnailPath
+  })
+  })
+
+    app.post("/getThumbnailUrl", async (req, res) => { 
+    const path = req.body.thumbnailPath; 
     const getUrl = await getSignedUrl(
   S3,
   new GetObjectCommand({ Bucket: "youtube-clone-2813", Key: path }),

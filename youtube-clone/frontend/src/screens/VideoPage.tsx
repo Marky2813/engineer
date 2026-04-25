@@ -8,14 +8,32 @@ export function VideoPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [videoDetails, setVideoDetails] = useState();
   const [isLoading, setIsLoading] = useState(true); 
-  const [recommendedVideos, setRecommendedVideos] = useState([]); 
+  const [recommendedVideos, setRecommendedVideos] = useState([]);
+  const [isAccessUrl, setAccessUrl] = useState(false); 
 
   const id = searchParams.get('id');
+  useEffect(() => {
+    if(isAccessUrl) {
+      const getFileUrl = axios.post("http://localhost:3000/getVideoUrl", { videoPath:videoDetails.videoUrl});
+      getFileUrl
+      .then((res) => {
+        console.log("it is loading")
+        setVideoDetails(prev => ({...prev,videoUrl:res.data.getUrl}));
+        setIsLoading(false);
+      }) .catch(err => console.error(err)) 
+      
+    }
+  }, [isAccessUrl])
 
   useEffect(() => {
     //react only expects the callback to either return undefined or a cleanup function 
     axios.get("http://localhost:3000/videos/" + id)
     .then((res) => {
+      if(res.data.videoUrl.split('.')[2] == "mp4") {
+       setVideoDetails(res.data);
+       setAccessUrl(true);
+       return  
+      }
       setVideoDetails(res.data);
       setIsLoading(false)})
     .catch(err => console.error(err))
