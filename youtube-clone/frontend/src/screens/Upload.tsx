@@ -34,7 +34,8 @@ const Upload = () => {
       }
       } )
       alert("file uploaded");
-      console.log(uploaded)
+      const getFileUrl = await axios.post("http://localhost:3000/getVideoUrl", { videoPath:res.data.key})
+      console.log(getFileUrl)
     }}/>
     <input type='text' placeholder='UserId' className='border p-2 w-full mb-4' id='userId' />
     <input type='text' placeholder='thumbnail' className='border p-2 w-full mb-4' id='thumbnail' />

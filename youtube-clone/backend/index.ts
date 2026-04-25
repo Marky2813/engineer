@@ -8,7 +8,7 @@ import express from "express";
 import { z } from "zod/v4"; 
 import { prisma } from './db'; 
 import { password } from "bun";
-import { S3Client, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutBucketCorsCommand, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const S3 = new S3Client({
@@ -20,7 +20,26 @@ const S3 = new S3Client({
     accessKeyId: process.env.ACCESS_KEY_ID!,
     secretAccessKey: process.env.SECRET_ACCESS_KEY!,
   },
+  requestChecksumCalculation: "WHEN_REQUIRED",
+  responseChecksumValidation: "WHEN_REQUIRED",
 });
+
+const command = new PutBucketCorsCommand({
+  Bucket: "youtube-clone-2813",
+  CORSConfiguration: {
+    CORSRules: [
+      {
+        AllowedOrigins: ["http://localhost:3001"],
+        AllowedMethods: ["PUT", "GET"],
+        AllowedHeaders: ["*"],
+        MaxAgeSeconds: 3000,
+      },
+    ],
+  },
+});
+
+S3.send(command).then(() => console.log("CORS set")).catch(console.error);
+
 
 function authMiddleWare(req: express.Request, res: express.Response, next: express.NextFunction) {
   const token = req.headers.authorization?.split(" ")[1]; 
@@ -182,7 +201,7 @@ app.post("/upload", authMiddleWare, async (req, res) => {
 app.post("/getPresignedUrl", async (req, res) => {
     //we are not going to be sharing the final url where the video is going to be published becasue we cannot make it public., 
     //key ke liye it should be math.random + name of the file. 
-    const videoPath = "/video" + Math.random() +".mp4"
+    const videoPath = "video" + Math.random() +".mp4"
     const putUrl = await getSignedUrl(
   S3,
   new PutObjectCommand({
@@ -193,7 +212,20 @@ app.post("/getPresignedUrl", async (req, res) => {
   { expiresIn: 3600 },
 );
   res.json({
-    putUrl: putUrl
+    putUrl: putUrl, 
+    key: videoPath
+  })
+  })
+
+  app.post("/getVideoUrl", async (req, res) => { 
+    const path = req.body.videoPath; 
+    const getUrl = await getSignedUrl(
+  S3,
+  new GetObjectCommand({ Bucket: "youtube-clone-2813", Key: path }),
+  { expiresIn: 3600 }, // Valid for 1 hour
+);
+  res.json({
+    getUrl
   })
   })
 
