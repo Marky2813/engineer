@@ -8,6 +8,19 @@ import express from "express";
 import { z } from "zod/v4"; 
 import { prisma } from './db'; 
 import { password } from "bun";
+import { S3Client, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+
+const S3 = new S3Client({
+  region: "auto", // Required by SDK but not used by R2
+  // Provide your Cloudflare account ID
+  endpoint: `https://s3.us-east-005.backblazeb2.com`,
+  // Retrieve your S3 API credentials for your R2 bucket via API tokens (see: https://developers.cloudflare.com/r2/api/tokens)
+  credentials: {
+    accessKeyId: process.env.ACCESS_KEY_ID!,
+    secretAccessKey: process.env.SECRET_ACCESS_KEY!,
+  },
+});
 
 function authMiddleWare(req: express.Request, res: express.Response, next: express.NextFunction) {
   const token = req.headers.authorization?.split(" ")[1]; 
@@ -165,6 +178,25 @@ app.post("/upload", authMiddleWare, async (req, res) => {
 
   res.send(uploaded)
 })
+
+app.post("/getPresignedUrl", async (req, res) => {
+    //we are not going to be sharing the final url where the video is going to be published becasue we cannot make it public., 
+    //key ke liye it should be math.random + name of the file. 
+    const videoPath = "/video" + Math.random() +".mp4"
+    const putUrl = await getSignedUrl(
+  S3,
+  new PutObjectCommand({
+    Bucket: "youtube-clone-2813",
+    Key: videoPath, //key is we need to generate our own key. 
+    ContentType: "video/mp4",
+  }),
+  { expiresIn: 3600 },
+);
+  res.json({
+    putUrl: putUrl
+  })
+  })
+
 
 app.listen(3000, () => {
   console.log("listening to port 3000!")
