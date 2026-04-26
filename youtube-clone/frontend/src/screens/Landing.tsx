@@ -9,12 +9,6 @@ export function Landing() {
   useEffect(() => {
     axios.get("http://localhost:3000/videos")
       .then(res => {
-        res.data.forEach(async (e) => {
-          if(e.thumbnail.split('.')[2] == "jpeg") {
-            const getFileUrl = await axios.post("http://localhost:3000/getThumbnailUrl", { thumbnailPath:e.thumbnail});
-            e.thumbnail = getFileUrl.data.getUrl;
-          }
-        })
         setVideos(res.data);
         console.log(res.data);
       })
@@ -22,7 +16,7 @@ export function Landing() {
   }, [])
   return (
     <>
-    <div className="flex p-2">
+    <div className="flex p-2 flex-wrap justify-center gap-2">
       {videos.map((video: any) => (
         <VideoCard
           href={`/watch?id=${video.id}`}
