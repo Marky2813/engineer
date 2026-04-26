@@ -17,7 +17,7 @@ model User {
   username        String   @unique
   password        String   
   gender          Gender
-  channelName     String
+  channelName     String   @unique
   banner          String?
   profilePicture  String?
   subscriberCount Int      @default(0)
