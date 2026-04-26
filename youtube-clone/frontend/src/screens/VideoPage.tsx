@@ -17,7 +17,8 @@ export function VideoPage() {
       const getFileUrl = axios.post("http://localhost:3000/getVideoUrl", { videoPath:videoDetails.videoUrl});
       getFileUrl
       .then((res) => {
-        console.log("it is loading")
+
+        console.log("it is loading", res.data.getUrl)
         setVideoDetails(prev => ({...prev,videoUrl:res.data.getUrl}));
         setIsLoading(false);
       }) .catch(err => console.error(err)) 
@@ -56,7 +57,7 @@ export function VideoPage() {
   <>
   <div className="flex justify-center gap-2">
     <div>
-    <video src={videoDetails.videoUrl} controls/>
+    <video controls><source src={videoDetails.videoUrl} type="video/mp4" /></video>
     <br />
     <div>{videoDetails.description}
     </div> 
