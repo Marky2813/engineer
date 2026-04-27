@@ -187,7 +187,7 @@ app.get("/videos/:id", async (req, res) => {
 
 app.get("/channel/:channelName", async (req, res) => {
   try {
-    const channelDetails = await prisma.user.findUnique({
+    let channelDetails = await prisma.user.findUnique({
     where:{ channelName: req.params.channelName}, 
     select: {
       banner:true, 
@@ -204,6 +204,17 @@ app.get("/channel/:channelName", async (req, res) => {
     }
     }
   })
+  channelDetails.uploads = await Promise.all(channelDetails.uploads.map(async (video) => {
+    if (video.thumbnail.split('.')[2] == "jpeg") {
+      const thumbnailUrl = await generateGetUrl(video.thumbnail);
+      video.thumbnail = thumbnailUrl;
+      const videoUrl = await generateGetUrl(video.videoUrl);
+      video.videoUrl = videoUrl;
+      return video; 
+    } else {
+      return video;
+    }
+  }))
   res.json({
     channelDetails
   })
