@@ -108,6 +108,7 @@ app.post('/signup', async (req, res) => {
   //before creating the user we need to hash the password and alter the data object
   const hash = await bcrypt.hash(result.data.password, saltrounds);
   result.data.password = hash;
+  result.data.channelName = result.data.channelName.trim().replace(/\s+/g, '-'); //remove whitespace from the channel name
 
   //create user 
   const user = await prisma.user.create({
@@ -182,6 +183,34 @@ app.get("/videos/:id", async (req, res) => {
   }
   if (!video) res.status(400).send("Unable to get videos");
   res.json(video)
+})
+
+app.get("/channel/:channelName", async (req, res) => {
+  try {
+    const channelDetails = await prisma.user.findUnique({
+    where:{ channelName: req.params.channelName}, 
+    select: {
+      banner:true, 
+      profilePicture:true, 
+      description:true, 
+      subscriberCount:true, 
+      uploads: {
+          select: {
+            thumbnail:true,
+            description:true, 
+            videoUrl:true, 
+            id:true
+          }
+    }
+    }
+  })
+  res.json({
+    channelDetails
+  })
+  } catch(err) {
+    console.error(err)
+    res.send("request failed")
+  }
 })
 
 app.post("/upload", authMiddleWare, async (req, res) => {

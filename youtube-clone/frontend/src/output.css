@@ -14,8 +14,6 @@
     --spacing: 0.25rem;
     --text-xs: 0.75rem;
     --text-xs--line-height: calc(1 / 0.75);
-    --text-lg: 1.125rem;
-    --text-lg--line-height: calc(1.75 / 1.125);
     --text-xl: 1.25rem;
     --text-xl--line-height: calc(1.75 / 1.25);
     --font-weight-bold: 700;
@@ -197,11 +195,17 @@
   .h-10 {
     height: calc(var(--spacing) * 10);
   }
+  .h-\[50px\] {
+    height: 50px;
+  }
   .h-\[360px\] {
     height: 360px;
   }
   .w-10 {
     width: calc(var(--spacing) * 10);
+  }
+  .w-\[50px\] {
+    width: 50px;
   }
   .w-\[600px\] {
     width: 600px;
@@ -217,6 +221,9 @@
   }
   .flex-wrap {
     flex-wrap: wrap;
+  }
+  .items-center {
+    align-items: center;
   }
   .justify-between {
     justify-content: space-between;

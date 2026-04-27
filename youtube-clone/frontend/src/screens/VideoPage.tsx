@@ -49,8 +49,7 @@ export function VideoPage() {
       {recommendedVideos.map((video: any) => (
         <VideoCard
           href={`/watch?id=${video.id}`}
-          key={video.id}
-          id={video.id}
+          videoId={video.id}
           imageUrl={video.thumbnail}
           title={video.description}
           profilePicture={video.user.profilePicture}

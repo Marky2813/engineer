@@ -13,7 +13,7 @@ export function App() {
       <Route path='/signin' element={<Signin />} />
       <Route path='/watch' element={<VideoPage />} />
       <Route path='/upload' element={<Upload />} />
-      <Route path='/channel/:id' element={<ChannelPage  />} /> //this is a dynamic route, we will get the channel id in the channel page and then fetch the channel details and videos uploaded by that channel.
+      <Route path='/channel/:channelName' element={<ChannelPage  />} /> //this is a dynamic route, we will get the channel id in the channel page and then fetch the channel details and videos uploaded by that channel.
     </Routes>  
   );
 }
