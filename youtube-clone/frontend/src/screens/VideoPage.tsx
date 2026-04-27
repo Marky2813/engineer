@@ -14,6 +14,7 @@ export function VideoPage() {
 
   useEffect(() => {
     //react only expects the callback to either return undefined or a cleanup function 
+    setIsLoading(true);
     axios.get("http://localhost:3000/videos/" + id)
     .then((res) => {
       setVideoDetails(res.data);
@@ -54,6 +55,7 @@ export function VideoPage() {
           title={video.description}
           profilePicture={video.user.profilePicture}
           channelName={video.user.channelName}
+          
         />
       ))}
     </div>
