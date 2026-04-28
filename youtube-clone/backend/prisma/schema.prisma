@@ -43,6 +43,7 @@ model Subscription {
   subscribedById    String
   subscribedBy    User     @relation("relation1", fields:[subscribedById], references: [id])
   subscribedTo    User     @relation("relation2", fields:[subscribedToId], references: [id])
+  @@unique([subscribedById, subscribedToId])
 }
 // relation fields are used by prisma to specify the relationships between models. we can use these to query the linked data.  
 
