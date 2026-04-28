@@ -162,7 +162,7 @@ app.get("/videos", async (req, res) => {
     if (video.thumbnail.split('.')[2] == "jpeg") {
       const thumbnailUrl = await generateGetUrl(video.thumbnail);
       video.thumbnail = thumbnailUrl;
-      return video; 
+      return video;
     } else {
       return video;
     }
@@ -187,38 +187,40 @@ app.get("/videos/:id", async (req, res) => {
 
 app.get("/channel/:channelName", async (req, res) => {
   try {
+    let signedIn = isSignedIn(req);
+    console.log("signed in status is ", signedIn)
     let channelDetails = await prisma.user.findUnique({
-    where:{ channelName: req.params.channelName}, 
-    select: {
-      banner:true, 
-      profilePicture:true, 
-      description:true, 
-      subscriberCount:true, 
-      uploads: {
+      where: { channelName: req.params.channelName },
+      select: {
+        banner: true,
+        profilePicture: true,
+        description: true,
+        subscriberCount: true,
+        uploads: {
           select: {
-            thumbnail:true,
-            description:true, 
-            videoUrl:true, 
-            id:true
+            thumbnail: true,
+            description: true,
+            videoUrl: true,
+            id: true
           }
-    }
-    }
-  })
-  channelDetails.uploads = await Promise.all(channelDetails.uploads.map(async (video) => {
-    if (video.thumbnail.split('.')[2] == "jpeg") {
-      const thumbnailUrl = await generateGetUrl(video.thumbnail);
-      video.thumbnail = thumbnailUrl;
-      const videoUrl = await generateGetUrl(video.videoUrl);
-      video.videoUrl = videoUrl;
-      return video; 
-    } else {
-      return video;
-    }
-  }))
-  res.json({
-    channelDetails
-  })
-  } catch(err) {
+        }
+      }
+    })
+    channelDetails.uploads = await Promise.all(channelDetails.uploads.map(async (video) => {
+      if (video.thumbnail.split('.')[2] == "jpeg") {
+        const thumbnailUrl = await generateGetUrl(video.thumbnail);
+        video.thumbnail = thumbnailUrl;
+        const videoUrl = await generateGetUrl(video.videoUrl);
+        video.videoUrl = videoUrl;
+        return video;
+      } else {
+        return video;
+      }
+    }))
+    res.json({
+      channelDetails
+    })
+  } catch (err) {
     console.error(err)
     res.send("request failed")
   }
@@ -321,6 +323,27 @@ async function generateGetUrl(path: string) {
     { expiresIn: 3600 }, // Valid for 1 hour
   );
   return getUrl;
+}
+
+
+function isSignedIn(req: express.Request) {
+  // Implementation for checking if user is signed in
+  let signedIn = false;
+  try {
+    console.log(req.headers.authorization)
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      console.log("no token found")
+      return signedIn;
+    }
+    const decoded = jwt.verify(token, "1234") as { username: string };
+    console.log("decoded token is ", decoded)
+    signedIn = true;
+    return signedIn;
+  } catch (err) {
+    console.error("error verifying token", err)
+    return signedIn;
+  }
 }
 
 
