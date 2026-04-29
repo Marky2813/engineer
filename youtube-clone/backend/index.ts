@@ -187,8 +187,8 @@ app.get("/videos/:id", async (req, res) => {
 
 app.get("/channel/:channelName", async (req, res) => {
   try {
-    let signedIn = isSignedIn(req);
-    console.log("signed in status is ", signedIn)
+    const user = await isSignedIn(req);
+    console.log("signed in status is", user.status, "and the id is", user.userId)
     let channelDetails = await prisma.user.findUnique({
       where: { channelName: req.params.channelName },
       select: {
@@ -196,6 +196,7 @@ app.get("/channel/:channelName", async (req, res) => {
         profilePicture: true,
         description: true,
         subscriberCount: true,
+        id:true, 
         uploads: {
           select: {
             thumbnail: true,
@@ -206,6 +207,26 @@ app.get("/channel/:channelName", async (req, res) => {
         }
       }
     })
+    let subscriptionStatus = "subscribe";
+    //subscripiton status can be self, subscribe and unsubscribe.
+    if(user.status) {
+      if(channelDetails?.id === user.userId) {
+        subscriptionStatus = "self"
+      } else {
+        const isSubscribed = await prisma.subscription.findFirst({
+          where: {
+            subscribedById: user.userId, 
+            subscribedToId: channelDetails?.id
+          }
+        });
+        if(isSubscribed) {
+          subscriptionStatus = "unsubscribe"
+        } else {
+          subscriptionStatus = "subscribe"
+        }
+      }
+    } 
+       // channelDetails.id === user.id then do not show the option to subscribe, if it is different then query to see if there exists a match, if no match then show subscribe. if match then show unsubscribe.
     channelDetails.uploads = await Promise.all(channelDetails.uploads.map(async (video) => {
       if (video.thumbnail.split('.')[2] == "jpeg") {
         const thumbnailUrl = await generateGetUrl(video.thumbnail);
@@ -218,7 +239,7 @@ app.get("/channel/:channelName", async (req, res) => {
       }
     }))
     res.json({
-      channelDetails
+      channelDetails, subscriptionStatus
     })
   } catch (err) {
     console.error(err)
@@ -325,20 +346,32 @@ async function generateGetUrl(path: string) {
   return getUrl;
 }
 
+type SignedIn = {
+  status:boolean, 
+  username?:string, 
+  userId?:string
+}
 
-function isSignedIn(req: express.Request) {
+async function isSignedIn(req: express.Request) {
   // Implementation for checking if user is signed in
-  let signedIn = false;
+  const signedIn: SignedIn = { status:false}; 
   try {
-    console.log(req.headers.authorization)
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) {
       console.log("no token found")
       return signedIn;
-    }
+    } 
     const decoded = jwt.verify(token, "1234") as { username: string };
-    console.log("decoded token is ", decoded)
-    signedIn = true;
+    signedIn.status = true;
+    signedIn.username = decoded.username
+    signedIn.userId = (await prisma.user.findUnique({
+      where: {
+        username:signedIn.username
+      }, 
+      select: {
+        id:true
+      }
+    }))?.id;
     return signedIn;
   } catch (err) {
     console.error("error verifying token", err)

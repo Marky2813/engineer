@@ -17,7 +17,7 @@ const ChannelPage = () => {
       .then(res => {
         setChannelDetails(res.data.channelDetails)
         setIsLoading(false);
-        console.log(res.data.channelDetails)
+        console.log(res.data.subscriptionStatus)
       })
       .catch(err => console.error(err))
   }, [])
