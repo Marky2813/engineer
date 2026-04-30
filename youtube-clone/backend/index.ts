@@ -207,11 +207,11 @@ app.get("/channel/:channelName", async (req, res) => {
         }
       }
     })
-    let subscriptionStatus = "subscribe";
+    user.subscriptionStatus = "subscribe"
     //subscripiton status can be self, subscribe and unsubscribe.
     if(user.status) {
       if(channelDetails?.id === user.userId) {
-        subscriptionStatus = "self"
+        user.subscriptionStatus = "self"
       } else {
         const isSubscribed = await prisma.subscription.findFirst({
           where: {
@@ -220,9 +220,9 @@ app.get("/channel/:channelName", async (req, res) => {
           }
         });
         if(isSubscribed) {
-          subscriptionStatus = "unsubscribe"
+          user.subscriptionStatus = "unsubscribe"
         } else {
-          subscriptionStatus = "subscribe"
+          user.subscriptionStatus = "subscribe"
         }
       }
     } 
@@ -239,12 +239,24 @@ app.get("/channel/:channelName", async (req, res) => {
       }
     }))
     res.json({
-      channelDetails, subscriptionStatus
+      channelDetails, user
     })
   } catch (err) {
     console.error(err)
     res.send("request failed")
   }
+})
+
+app.post("/subscribe", authMiddleWare, async (req, res) => {
+  const userId = req.body.userId; 
+  const channelId = req.body.channelId;
+  const relation = await prisma.subscription.create({
+    data: {
+      subscribedById: userId,
+      subscribedToId: channelId
+    }
+  })
+  res.json(relation)
 })
 
 app.post("/upload", authMiddleWare, async (req, res) => {
@@ -337,6 +349,20 @@ app.post("/getThumbnailUrl", async (req, res) => {
   })
 })
 
+app.delete("/unsubscribe", authMiddleWare, async (req, res) => {
+  const userId = req.body.userId; 
+  const channelId = req.body.channelId;
+  const relation = await prisma.subscription.delete({
+    where: {
+      subscribedById_subscribedToId: {
+        subscribedById: userId,
+        subscribedToId: channelId
+      }
+    }
+  })
+  res.json(relation)
+})
+
 async function generateGetUrl(path: string) {
   const getUrl = await getSignedUrl(
     S3,
@@ -349,7 +375,8 @@ async function generateGetUrl(path: string) {
 type SignedIn = {
   status:boolean, 
   username?:string, 
-  userId?:string
+  userId?:string, 
+  subscriptionStatus?: "self" | "subscribe" | "unsubscribe",
 }
 
 async function isSignedIn(req: express.Request) {
