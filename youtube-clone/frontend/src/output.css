@@ -251,6 +251,12 @@
     border-style: var(--tw-border-style);
     border-width: 1px;
   }
+  .border-black {
+    border-color: var(--color-black);
+  }
+  .bg-black {
+    background-color: var(--color-black);
+  }
   .bg-blue-500 {
     background-color: var(--color-blue-500);
   }

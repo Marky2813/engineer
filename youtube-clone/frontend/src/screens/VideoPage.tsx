@@ -9,8 +9,17 @@ export function VideoPage() {
   const [videoDetails, setVideoDetails] = useState();
   const [isLoading, setIsLoading] = useState(true); 
   const [recommendedVideos, setRecommendedVideos] = useState([]);
+  const [comment, setComment] = useState(""); 
 
   const id = searchParams.get('id');
+
+  async function submitComment() {
+  //what we will post will be returned by the request. then we need to update the video details comment array. hopiong this doesn't cause a  rerender
+    if(!localStorage.getItem("token")) {
+      return alert("please sign in to post comment!")
+    }
+    
+  }
 
   useEffect(() => {
     //react only expects the callback to either return undefined or a cleanup function 
@@ -45,6 +54,19 @@ export function VideoPage() {
     </div> 
     <div>{videoDetails.user.channelName}</div>
     <div className="rounded-full"><img src={videoDetails.user.profilePicture} className="rounded-full w-10 h-10"/></div>
+    {/* include the comments here */} 
+    <input type='text' placeholder="Enter comment" className="border-black border-black" value={comment} onChange={e => setComment(e.target.value)}/>
+    <button className="bg-black text-white px-4 py-2 rounded" onClick={submitComment} disabled={comment===""}>Post Comment</button>
+    {
+      videoDetails.comment.length ?
+      videoDetails.comment.map((comment: any) => (
+        <div key={comment.id}>
+          <p>{comment.text}</p>
+          <p className="text-gray-500">By: {comment.user.channelName}</p>
+        </div>
+      ))
+      : <p>No comments yet</p>
+    }
     </div>
     <div>
       {recommendedVideos.map((video: any) => (
