@@ -174,8 +174,12 @@ app.get("/videos", async (req, res) => {
 app.get("/videos/:id", async (req, res) => {
   const video = await prisma.uploads.findUnique({
     where: { id: req.params.id },
-    include: { user: { select: { id: true, channelName: true, profilePicture: true, banner: true, subscriberCount: true } } }
+    include: { 
+     user: { select: { id: true, channelName: true, profilePicture: true, banner: true, subscriberCount: true } },
+     comment: true 
+    }
   })
+  console.log(video)
   if (video.videoUrl.split('.')[2] == "mp4") {
     const videoUrl = await generateGetUrl(video.videoUrl);
     video.videoUrl = videoUrl;
