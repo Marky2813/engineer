@@ -23,6 +23,7 @@ model User {
   subscriberCount Int      @default(0)
   description     String?
   uploads         Uploads[]
+  comments        Comment[]
   subscribedTo    Subscription[] @relation("relation2")
   subscribedBy    Subscription[] @relation("relation1")
 }
@@ -35,6 +36,7 @@ model Uploads {
   description     String?
   user            User      @relation(fields:[userId], references: [id])
   createdAt       DateTime  @default(now())
+  comment         Comment[]
 }
 
 model Subscription {
@@ -45,7 +47,17 @@ model Subscription {
   subscribedTo    User     @relation("relation2", fields:[subscribedToId], references: [id])
   @@unique([subscribedById, subscribedToId])
 }
-// relation fields are used by prisma to specify the relationships between models. we can use these to query the linked data.  
+// relation fields are used by prisma to specify the relationships between models. we can use these to query the linked data. 
+
+model Comment {
+  id             String    @id  @default(uuid())
+  comment        String 
+  userId         String 
+  uploadId       String
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields:[userId], references: [id])
+  uploads        Uploads  @relation(fields:[uploadId], references: [id]) 
+}
 
 enum Gender {
   Male 

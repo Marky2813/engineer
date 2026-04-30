@@ -179,7 +179,6 @@ app.get("/videos/:id", async (req, res) => {
   if (video.videoUrl.split('.')[2] == "mp4") {
     const videoUrl = await generateGetUrl(video.videoUrl);
     video.videoUrl = videoUrl;
-    console.log("get video url is working perfectly fine")
   }
   if (!video) res.status(400).send("Unable to get videos");
   res.json(video)
@@ -188,7 +187,6 @@ app.get("/videos/:id", async (req, res) => {
 app.get("/channel/:channelName", async (req, res) => {
   try {
     const user = await isSignedIn(req);
-    console.log("signed in status is", user.status, "and the id is", user.userId)
     let channelDetails = await prisma.user.findUnique({
       where: { channelName: req.params.channelName },
       select: {
