@@ -174,9 +174,9 @@ app.get("/videos", async (req, res) => {
 app.get("/videos/:id", async (req, res) => {
   const video = await prisma.uploads.findUnique({
     where: { id: req.params.id },
-    include: { 
-     user: { select: { id: true, channelName: true, profilePicture: true, banner: true, subscriberCount: true } },
-     comment: true 
+    include: {
+      user: { select: { id: true, channelName: true, profilePicture: true, banner: true, subscriberCount: true } },
+      comment: true
     }
   })
   console.log(video)
@@ -198,7 +198,7 @@ app.get("/channel/:channelName", async (req, res) => {
         profilePicture: true,
         description: true,
         subscriberCount: true,
-        id:true, 
+        id: true,
         uploads: {
           select: {
             thumbnail: true,
@@ -211,24 +211,24 @@ app.get("/channel/:channelName", async (req, res) => {
     })
     user.subscriptionStatus = "subscribe"
     //subscripiton status can be self, subscribe and unsubscribe.
-    if(user.status) {
-      if(channelDetails?.id === user.userId) {
+    if (user.status) {
+      if (channelDetails?.id === user.userId) {
         user.subscriptionStatus = "self"
       } else {
         const isSubscribed = await prisma.subscription.findFirst({
           where: {
-            subscribedById: user.userId, 
+            subscribedById: user.userId,
             subscribedToId: channelDetails?.id
           }
         });
-        if(isSubscribed) {
+        if (isSubscribed) {
           user.subscriptionStatus = "unsubscribe"
         } else {
           user.subscriptionStatus = "subscribe"
         }
       }
-    } 
-       // channelDetails.id === user.id then do not show the option to subscribe, if it is different then query to see if there exists a match, if no match then show subscribe. if match then show unsubscribe.
+    }
+    // channelDetails.id === user.id then do not show the option to subscribe, if it is different then query to see if there exists a match, if no match then show subscribe. if match then show unsubscribe.
     channelDetails.uploads = await Promise.all(channelDetails.uploads.map(async (video) => {
       if (video.thumbnail.split('.')[2] == "jpeg") {
         const thumbnailUrl = await generateGetUrl(video.thumbnail);
@@ -249,8 +249,34 @@ app.get("/channel/:channelName", async (req, res) => {
   }
 })
 
+app.post("/comment", authMiddleWare, async (req, res) => {
+  try {
+    const uploadId = req.body.uploadId;
+    const commentText = req.body.comment;
+    const userId = await prisma.user.findFirst({
+      where: {
+        username: req.body.username
+      }, 
+      select: {
+        id:true
+      }
+    })
+    const comment = await prisma.comment.create({
+      data:
+      {
+        comment: commentText,
+        uploadId: uploadId,
+        userId: userId.id
+      }
+    })
+    res.json(comment)
+  } catch (err) {
+    console.error(err)
+  }
+})
+
 app.post("/subscribe", authMiddleWare, async (req, res) => {
-  const userId = req.body.userId; 
+  const userId = req.body.userId;
   const channelId = req.body.channelId;
   const relation = await prisma.subscription.create({
     data: {
@@ -352,7 +378,7 @@ app.post("/getThumbnailUrl", async (req, res) => {
 })
 
 app.delete("/unsubscribe", authMiddleWare, async (req, res) => {
-  const userId = req.body.userId; 
+  const userId = req.body.userId;
   const channelId = req.body.channelId;
   const relation = await prisma.subscription.delete({
     where: {
@@ -375,30 +401,30 @@ async function generateGetUrl(path: string) {
 }
 
 type SignedIn = {
-  status:boolean, 
-  username?:string, 
-  userId?:string, 
+  status: boolean,
+  username?: string,
+  userId?: string,
   subscriptionStatus?: "self" | "subscribe" | "unsubscribe",
 }
 
 async function isSignedIn(req: express.Request) {
   // Implementation for checking if user is signed in
-  const signedIn: SignedIn = { status:false}; 
+  const signedIn: SignedIn = { status: false };
   try {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) {
       console.log("no token found")
       return signedIn;
-    } 
+    }
     const decoded = jwt.verify(token, "1234") as { username: string };
     signedIn.status = true;
     signedIn.username = decoded.username
     signedIn.userId = (await prisma.user.findUnique({
       where: {
-        username:signedIn.username
-      }, 
+        username: signedIn.username
+      },
       select: {
-        id:true
+        id: true
       }
     }))?.id;
     return signedIn;

@@ -12,13 +12,25 @@ export function VideoPage() {
   const [comment, setComment] = useState(""); 
 
   const id = searchParams.get('id');
+  const token = localStorage.getItem("token")
 
   async function submitComment() {
   //what we will post will be returned by the request. then we need to update the video details comment array. hopiong this doesn't cause a  rerender
     if(!localStorage.getItem("token")) {
       return alert("please sign in to post comment!")
     }
-    
+    const response = await axios.post("http://localhost:3000/comment", {
+      uploadId:id, 
+      comment
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  )
+    setComment(""); 
+    setVideoDetails(prev => ({...prev, comment: [...prev.comment, response.data]}))
   }
 
   useEffect(() => {
@@ -60,9 +72,9 @@ export function VideoPage() {
     {
       videoDetails.comment.length ?
       videoDetails.comment.map((comment: any) => (
-        <div key={comment.id}>
-          <p>{comment.text}</p>
-          <p className="text-gray-500">By: {comment.user.channelName}</p>
+        <div key={comment.id} className="border-1 border-black p-5 gap-2">
+          <p>{comment.comment}</p>
+          <p className="text-gray-500">By: {comment.userId}</p>
         </div>
       ))
       : <p>No comments yet</p>
