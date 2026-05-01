@@ -10,6 +10,7 @@ import { prisma } from './db';
 import { password } from "bun";
 import { S3Client, PutBucketCorsCommand, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { watch } from "node:fs";
 
 const S3 = new S3Client({
   region: "auto", // Required by SDK but not used by R2
@@ -187,6 +188,13 @@ app.get("/videos/:id", async (req, res) => {
     })
     if (user.status) {
       //check if the user has liked
+      const watchHistoryEntry = await prisma.watchHistory.create({
+        data: {
+          userId: user.userId!,
+          uploadId: req.params.id
+        }
+      })
+      console.log(watchHistoryEntry)
       const like = await prisma.like.findFirst({
         where: {
           userId: user.userId,
