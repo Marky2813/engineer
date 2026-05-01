@@ -184,6 +184,17 @@ app.get("/videos/:id", async (req, res) => {
   })
   if(user.status) {
     //check if the user has liked
+    const like = await prisma.like.findFirst({
+      where: {
+        userId: user.userId,
+        uploadId: req.params.id
+      }
+    });
+    if (like) {
+      user.likeStatus = "liked";
+    } else {
+      user.likeStatus = "unliked";
+    }
   } else {
     user.likeStatus = null;
   }
@@ -192,7 +203,9 @@ app.get("/videos/:id", async (req, res) => {
     video.videoUrl = videoUrl;
   }
   if (!video) res.status(400).send("Unable to get videos");
-  res.json(video, user)
+  res.json({
+    video, user
+  })
 } catch(err) {
   console.error(err); 
 }
@@ -415,7 +428,7 @@ type SignedIn = {
   username?: string,
   userId?: string,
   subscriptionStatus?: "self" | "subscribe" | "unsubscribe",
-  likeStatus?: "like" | "dislike" | null
+  likeStatus?: "liked" | "unliked" | null
 }
 
 async function isSignedIn(req: express.Request) {

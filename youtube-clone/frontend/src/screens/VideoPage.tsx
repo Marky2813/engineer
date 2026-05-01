@@ -41,9 +41,9 @@ export function VideoPage() {
     setIsLoading(true);
     axios.get("http://localhost:3000/videos/" + id)
     .then((res) => {
-      console.log(res.data)
-      setVideoDetails(res.data);
-      setLikeCount(res.data.likes.length); 
+      console.log(res.data.video.likes.length)
+      setVideoDetails(res.data.video);
+      setLikeCount(res.data.video.likes.length); 
       setIsLoading(false)})
     .catch(err => console.error(err))
   }, [id])
@@ -74,7 +74,35 @@ export function VideoPage() {
     </div>
     <div>
     <div>likeCount: {likeCount}</div>
-    <div>like symbol</div>
+    <button className={`px-4 py-2 rounded ${likeStatus ? "bg-gray-500 text-white" : "bg-blue-500 text-white"}`} onClick={async () => {
+      if(!localStorage.getItem("token")) {
+        return alert("please sign in to like videos!")
+      }
+      if(likeStatus) {
+        try {
+        //send request to the like endpoint to unlike the video
+        setLikeCount(prev => prev - 1);
+        setLikeStatus(false);
+        } catch(err) {
+          setLikeCount(prev => prev + 1);
+          setLikeStatus(true);
+          console.error(err);
+          return alert("Unable to unlike the video. Please try again.")
+        } 
+      } else {
+        try {
+          //send request to the like endpoint to like the video
+          setLikeCount(prev => prev + 1);
+          setLikeStatus(true);
+    } catch(err) {
+      setLikeCount(prev => prev - 1);
+      setLikeStatus(false);
+      console.error(err);
+      return alert("Unable to like the video. Please try again.")
+    }
+      }
+    }}>
+      {likeStatus ? "Unlike" : "Like"} </button>
     </div>
     </div>
     <div className="rounded-full"><img src={videoDetails.user.profilePicture} className="rounded-full w-10 h-10"/></div>
