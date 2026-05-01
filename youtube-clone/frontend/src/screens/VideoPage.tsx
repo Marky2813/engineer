@@ -9,7 +9,9 @@ export function VideoPage() {
   const [videoDetails, setVideoDetails] = useState();
   const [isLoading, setIsLoading] = useState(true); 
   const [recommendedVideos, setRecommendedVideos] = useState([]);
-  const [comment, setComment] = useState(""); 
+  const [comment, setComment] = useState("");
+  const [likeCount, setLikeCount] = useState(0);
+  const [likeStatus, setLikeStatus] = useState(false);
 
   const id = searchParams.get('id');
   const token = localStorage.getItem("token")
@@ -35,10 +37,13 @@ export function VideoPage() {
 
   useEffect(() => {
     //react only expects the callback to either return undefined or a cleanup function 
+    //if not signed in, the likeStatus will be null and it needs to alert the user to signin 
     setIsLoading(true);
     axios.get("http://localhost:3000/videos/" + id)
     .then((res) => {
+      console.log(res.data)
       setVideoDetails(res.data);
+      setLikeCount(res.data.likes.length); 
       setIsLoading(false)})
     .catch(err => console.error(err))
   }, [id])
@@ -58,13 +63,20 @@ export function VideoPage() {
   }
   return (
   <>
-  <div className="flex justify-center gap-2">
+  <div className="flex justify-center gap-2 p-5">
     <div>
     <video controls><source src={videoDetails.videoUrl} type="video/mp4" /></video>
     <br />
-    <div>{videoDetails.description}
-    </div> 
-    <div>{videoDetails.user.channelName}</div>
+    <div className="flex justify-between">
+    <div>
+      <div>{videoDetails.description}</div> 
+      <div>{videoDetails.user.channelName}</div>
+    </div>
+    <div>
+    <div>likeCount: {likeCount}</div>
+    <div>like symbol</div>
+    </div>
+    </div>
     <div className="rounded-full"><img src={videoDetails.user.profilePicture} className="rounded-full w-10 h-10"/></div>
     {/* include the comments here */} 
     <input type='text' placeholder="Enter comment" className="border-black border-black" value={comment} onChange={e => setComment(e.target.value)}/>

@@ -172,20 +172,30 @@ app.get("/videos", async (req, res) => {
 })
 
 app.get("/videos/:id", async (req, res) => {
+  try {
+  const user = await isSignedIn(req);
   const video = await prisma.uploads.findUnique({
     where: { id: req.params.id },
     include: {
       user: { select: { id: true, channelName: true, profilePicture: true, banner: true, subscriberCount: true } },
-      comment: true
+      comment: true, 
+      likes: true,
     }
   })
-  console.log(video)
+  if(user.status) {
+    //check if the user has liked
+  } else {
+    user.likeStatus = null;
+  }
   if (video.videoUrl.split('.')[2] == "mp4") {
     const videoUrl = await generateGetUrl(video.videoUrl);
     video.videoUrl = videoUrl;
   }
   if (!video) res.status(400).send("Unable to get videos");
-  res.json(video)
+  res.json(video, user)
+} catch(err) {
+  console.error(err); 
+}
 })
 
 app.get("/channel/:channelName", async (req, res) => {
@@ -405,6 +415,7 @@ type SignedIn = {
   username?: string,
   userId?: string,
   subscriptionStatus?: "self" | "subscribe" | "unsubscribe",
+  likeStatus?: "like" | "dislike" | null
 }
 
 async function isSignedIn(req: express.Request) {

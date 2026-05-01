@@ -26,6 +26,7 @@ model User {
   comments        Comment[]
   subscribedTo    Subscription[] @relation("relation2")
   subscribedBy    Subscription[] @relation("relation1")
+  likes           Like[]
 }
 
 model Uploads {
@@ -37,6 +38,7 @@ model Uploads {
   user            User      @relation(fields:[userId], references: [id])
   createdAt       DateTime  @default(now())
   comment         Comment[]
+  likes           Like[]
 }
 
 model Subscription {
@@ -57,6 +59,15 @@ model Comment {
   createdAt      DateTime @default(now())
   user           User     @relation(fields:[userId], references: [id])
   uploads        Uploads  @relation(fields:[uploadId], references: [id]) 
+}
+
+model Like {
+  id             String    @id  @default(uuid())
+  userId         String 
+  uploadId       String
+  user           User     @relation(fields: [userId], references: [id])
+  uploads        Uploads  @relation(fields: [uploadId], references: [id])
+  @@unique([userId, uploadId])
 }
 
 enum Gender {

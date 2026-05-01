@@ -1,0 +1,347 @@
+[33mcommit 2e02936993b5aa28f13b4d67def1b8a94cf6e86a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Thu Apr 30 19:57:48 2026 +0530
+
+    Comment feature added
+
+[33mcommit 232fe05a0e6295c81b9b91c334e0738928b7b664[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Thu Apr 30 19:28:28 2026 +0530
+
+    Comment UI added
+
+[33mcommit 82e4f2999f3a5cb476c9b014c72cfa7998ca4f33[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Thu Apr 30 19:01:09 2026 +0530
+
+    Modified get video endpoint to include the comments for a paritcular uplaod
+
+[33mcommit 3a5fb9fbfef4948b42c036ef014ce145763d64b8[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Thu Apr 30 18:47:59 2026 +0530
+
+    Migrated DB, added comment model
+
+[33mcommit 844bef3fac62a58e9d765d16fe1eaee2461392c2[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Thu Apr 30 14:21:12 2026 +0530
+
+    Subscription functionality
+
+[33mcommit 9b6f453567b86a5642d4c07d869bd65004734eb5[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Wed Apr 29 17:27:42 2026 +0530
+
+    Subscription check added, channel/channelname end point is sharing the subscription status as well
+
+[33mcommit d738b307f39edfc2c5d0cbcf2281d8f2c1963147[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Tue Apr 28 22:48:03 2026 +0530
+
+    Added signin verifcation for non authenticated routes
+
+[33mcommit 4db83c04ce5caa6167e0ceee465250e8e7efd72f[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Tue Apr 28 20:15:42 2026 +0530
+
+    Migrated DB,unique constraint added to subscription model
+
+[33mcommit a6d83fd93e97657fad9dee6f72d0f8fbdce952ea[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Tue Apr 28 19:51:45 2026 +0530
+
+    Migrated DB, Subscription model added
+
+[33mcommit 8d9046070a4270fa0f7c06470f0566ef7198860c[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Mon Apr 27 14:05:56 2026 +0530
+
+    Added navigation using useNavigate hook
+
+[33mcommit 8fb8c8171202e6e62f1968b166c399c3835d1f3a[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Mon Apr 27 13:35:19 2026 +0530
+
+    Uploads page now using access Url from the object storage
+
+[33mcommit c200de77f81ab736ba7397386b976ff851413f2b[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Mon Apr 27 13:16:57 2026 +0530
+
+    Channel page and endpoint created
+
+[33mcommit 30b8414b86331cb837087e2a47acdcb3cb4c3682[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Sun Apr 26 23:47:30 2026 +0530
+
+    DB migrated, channel names made unique
+
+[33mcommit b326d8e9b0122c156714cacfb788bf65b2bd2f43[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Sun Apr 26 17:04:37 2026 +0530
+
+    removed the extra request to fetch thumbnail and video access url from the object storage, now it is being handled by the backend.
+
+[33mcommit 2bcbe741c92580540791fb4fd373c06ae5358a47[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Sun Apr 26 12:41:46 2026 +0530
+
+    Video playing issue fixed
+
+[33mcommit 65a6067d11e44f3676805a81cc500d110dc758db[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Sat Apr 25 21:49:07 2026 +0530
+
+    Upload video and thumbnail and get video and thumbnail on load added
+
+[33mcommit b90196510c41084435268a06491ed0fde263c9e3[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Sat Apr 25 14:08:47 2026 +0530
+
+    put object and get objects command added
+
+[33mcommit e6f5421f874df8770d4a30617082c123cb773f83[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Sat Apr 25 12:48:53 2026 +0530
+
+    added object store(Blackbaze B2) and presigned url functionality
+
+[33mcommit aa9f2d9fbc1fff675b6f05e957c7ae9f60075a41[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Fri Apr 24 17:25:31 2026 +0530
+
+    Video Page v1 completed
+
+[33mcommit e75cf15e7224735e6a4fef2e480e5b44ffe7fb5d[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Fri Apr 24 00:30:22 2026 +0530
+
+    YT v1 complete
+
+[33mcommit 18468b6bcb66cd35dba89ac4a29d4e7a281445fc[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Thu Apr 23 20:40:31 2026 +0530
+
+    Frontend routes added, default and upload route created
+
+[33mcommit 5d8d3f5a341bc9eb05b3f3836b27cab1f656f754[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Thu Apr 23 00:07:45 2026 +0530
+
+    Added thumbnail and description in the database schema
+
+[33mcommit c63b43589202d74d6744361a3af1b055b4bec407[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Wed Apr 22 18:59:44 2026 +0530
+
+    Added all unauthenticated endpoints
+
+[33mcommit 2b1856af28396a53ed67bb7f2fd5667e28132613[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Wed Apr 22 18:47:57 2026 +0530
+
+    Authentication added using jwt. Zod has been used for input validation and bcrypt for password hashing
+
+[33mcommit 94c18021809678dce985af712b592adcdedf9f34[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Wed Apr 22 16:59:03 2026 +0530
+
+    DB migrated. Used Neon DB as the serverless cloud to host DB
+
+[33mcommit 005befd7533fbbb884d4aa0dfe2e8b199a31ca3f[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Wed Apr 22 16:48:47 2026 +0530
+
+    Youtube project initialised and DB schema created
+
+[33mcommit 65715501ab13e4dfc8586a4bda12f5cb687b4f93[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Sun Apr 19 01:18:39 2026 +0530
+
+    Family travel tracker complete
+
+[33mcommit 8e0e514cf08d0b4e0cb15fb56d286345fba9e67b[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Sun Apr 19 00:08:10 2026 +0530
+
+    Family travel tracker initialised
+
+[33mcommit e146affd8b4a6c0fe9ffdec067ac76473df62f22[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Sat Apr 18 15:07:25 2026 +0530
+
+    Project Initialised, database created and '/' path completed
+
+[33mcommit e18a5066721718925ad5833ff864f8ab7c6e0982[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Sat Apr 18 12:47:31 2026 +0530
+
+    SQL pipe commands
+
+[33mcommit 60adcbcc2e528d8d6a26be14123c4ba57772856f[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Sat Apr 18 11:42:20 2026 +0530
+
+    Capitals game completed using PostgresSQL
+
+[33mcommit 1fade6a3c204a6c3eee405e0b7f762f22b4bb8ee[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Sat Apr 18 10:54:20 2026 +0530
+
+    Added static files and capitals and flags data to the DB
+
+[33mcommit 22d91e42a6ba9956ad2a72f30d9989e80549c95f[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Fri Apr 17 21:07:45 2026 +0530
+
+    Connection established with postgres db using neon
+
+[33mcommit 98a5a2958979f95e21fd065a7d193dc9e6f8d207[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Fri Apr 17 20:21:02 2026 +0530
+
+    sql initialised
+
+[33mcommit 8108dcbe39fc78ff4b9df1daece22ca45dbf9161[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Wed Apr 8 23:42:21 2026 +0530
+
+    Moved trello's in memory databases to mongoDB
+
+[33mcommit 63dfc20f628ec552ff8589c96222ebd14006bf13[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Wed Apr 8 01:10:58 2026 +0530
+
+    Migrated todo app from my in memory database to MongoDB
+
+[33mcommit 02c8716c2f61f20be054246e732f6771fe2fc89d[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Tue Apr 7 02:24:12 2026 +0530
+
+    Created todo backend, to be initialized with mongoDB
+
+[33mcommit 002cb505be18da9658fe39bf3138ec902e955d3a[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Mon Apr 6 02:31:28 2026 +0530
+
+    Created project and added test file for nano banana 2
+
+[33mcommit 95cdf2d759a459bf9a87aa0f111139561fcf66df[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Mon Apr 6 02:29:25 2026 +0530
+
+    Created project and added test file for nano banana 2
+
+[33mcommit fcdad1d3d2ca3497b5218ba4fff148d2e016974f[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Tue Mar 31 23:25:51 2026 +0530
+
+    Update route created
+
+[33mcommit b438300df46aacfad757ad3211f9d01af0924a22[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Tue Mar 31 23:20:24 2026 +0530
+
+    Read endpoints created
+
+[33mcommit 3f40b5971b6ad159e34b0c69676e4c16d9c779ac[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Tue Mar 31 20:01:35 2026 +0530
+
+    Create routes created
+
+[33mcommit 1950a2b4e8430b35e9cc318d781b48af692a0db0[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Tue Mar 31 19:22:04 2026 +0530
+
+    Delete end point completed
+
+[33mcommit fcdf98a1f8876826c68e3bd0496f66075d3d04e3[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Tue Mar 31 01:33:38 2026 +0530
+
+    Auth added
+
+[33mcommit ff6e3fe47a03f99f8719b546e88b74e12d595d9c[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Tue Mar 31 00:54:17 2026 +0530
+
+    designed routes
+
+[33mcommit eb4df0e54533cb2ebeafbf178e25c4343cbf3ea5[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Mon Mar 30 23:45:05 2026 +0530
+
+    Initail Trello Commit
+
+[33mcommit 52e79ac591f1f820a508e8dabc8cdd4da5d40950[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Thu Mar 19 13:13:57 2026 +0530
+
+    JWT assignment completed
+
+[33mcommit 24a72f844765aa85fce56c89c5f55b80809d5ef4[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Thu Mar 19 02:29:08 2026 +0530
+
+    Added authentication to pet app using jwt, linked with supabase
+
+[33mcommit 1443a9957856d1fc2675b8173d21f0c4267c0c8f[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Tue Mar 17 00:23:32 2026 +0530
+
+    Middleware tests complete
+
+[33mcommit e9ca01ba33cfafe3bdbcf931ee25a22aeac85f02[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Mon Mar 16 23:19:40 2026 +0530
+
+    Ratelimiter complete
+
+[33mcommit 1ff7004b0eb76c2e02d60ef91a4a3814945ae8ac[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Mon Mar 16 23:04:42 2026 +0530
+
+    FileServer assignment Complete
+
+[33mcommit 9d0cc0fedb8df8382e1ef70932b60c8aa3ea94b4[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Mon Mar 16 17:51:16 2026 +0530
+
+    To-do list app, HTTP server complete
+
+[33mcommit 63a596b1d8ba2d775870963a842e4ffabee9d9e0[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Mon Mar 16 03:08:19 2026 +0530
+
+    Added week-07 assignments nodejs, middleware and jwt
+
+[33mcommit a79b4785dcfcf048a4960407873539e36d986e6b[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Sun Mar 15 13:40:12 2026 +0530
+
+    Petmatch supabase integration and pet profiles table along with react setup
+
+[33mcommit c5b8ab021f1e60c06e3088b2751795b0c009403f[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Sat Mar 14 22:05:22 2026 +0530
+
+    Petmatch backend complete
+
+[33mcommit ed128a7edd0b543a6f700387693e8d0bd6e65ba4[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Sat Mar 14 01:20:49 2026 +0530
+
+    Express Assignment Complete
+
+[33mcommit 499d7bc176e2322e954e99bd7395f3d52d8f1f6e[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Tue Mar 10 20:24:04 2026 +0530
+
+    Full Stack Calculator Complete
+
+[33mcommit 965785650685152515f7065f520dffddab36e291[m
+Author: Sarthak <messagetosarthak@gmail.com>
+Date:   Tue Mar 10 19:51:18 2026 +0530
+
+    Initial commit
