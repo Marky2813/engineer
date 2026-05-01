@@ -1,7 +1,8 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router"
+import { data, useSearchParams } from "react-router"
 import { VideoCard } from "@/components/VideoCard";
+import Upload from "./Upload";
 
 export function VideoPage() {
   //get the query params. this is another hook in react and then display the video
@@ -14,7 +15,7 @@ export function VideoPage() {
   const [likeStatus, setLikeStatus] = useState(false);
 
   const id = searchParams.get('id');
-  const token = localStorage.getItem("token")
+  const token = localStorage.getItem("token")?.trim()
 
   async function submitComment() {
   //what we will post will be returned by the request. then we need to update the video details comment array. hopiong this doesn't cause a  rerender
@@ -39,11 +40,20 @@ export function VideoPage() {
     //react only expects the callback to either return undefined or a cleanup function 
     //if not signed in, the likeStatus will be null and it needs to alert the user to signin 
     setIsLoading(true);
-    axios.get("http://localhost:3000/videos/" + id)
+    axios.get("http://localhost:3000/videos/" + id, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
     .then((res) => {
-      console.log(res.data.video.likes.length)
+      console.log(res.data.user)
       setVideoDetails(res.data.video);
-      setLikeCount(res.data.video.likes.length); 
+      setLikeCount(res.data.video.likes.length);
+      if(res.data.user.status) {
+        if(res.data.user.likeStatus === "liked") {
+          setLikeStatus(true);
+        }
+      } 
       setIsLoading(false)})
     .catch(err => console.error(err))
   }, [id])
@@ -80,13 +90,20 @@ export function VideoPage() {
       }
       if(likeStatus) {
         try {
-        //send request to the like endpoint to unlike the video
         setLikeCount(prev => prev - 1);
         setLikeStatus(false);
+        console.log(id)
+        await axios.post("http://localhost:3000/unlike", {
+          uploadId: id
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }).then(res => console.log("deleted like successfully", res.data))
         } catch(err) {
           setLikeCount(prev => prev + 1);
           setLikeStatus(true);
-          console.error(err);
+          console.error(err.response.data);
           return alert("Unable to unlike the video. Please try again.")
         } 
       } else {
@@ -94,6 +111,13 @@ export function VideoPage() {
           //send request to the like endpoint to like the video
           setLikeCount(prev => prev + 1);
           setLikeStatus(true);
+          await axios.post("http://localhost:3000/like", {
+          uploadId: id
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`
+        }
+      }).then(res => console.log("liked video successfully", res.data))
     } catch(err) {
       setLikeCount(prev => prev - 1);
       setLikeStatus(false);

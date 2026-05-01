@@ -43,6 +43,7 @@ S3.send(command).then(() => console.log("CORS set")).catch(console.error);
 
 function authMiddleWare(req: express.Request, res: express.Response, next: express.NextFunction) {
   const token = req.headers.authorization?.split(" ")[1];
+  console.log("auth middleware called", token)
   if (!token) {
     return res.status(400).send("Unauthorized")
   }
@@ -54,6 +55,8 @@ function authMiddleWare(req: express.Request, res: express.Response, next: expre
     return res.status(400).send("Unauthorized");
   }
 }
+//deleted requests have no body, from the next time a custom property need to be declared so that the deleted endpoints are also authent
+
 
 const app = express();
 const saltrounds = 10;
@@ -173,42 +176,42 @@ app.get("/videos", async (req, res) => {
 
 app.get("/videos/:id", async (req, res) => {
   try {
-  const user = await isSignedIn(req);
-  const video = await prisma.uploads.findUnique({
-    where: { id: req.params.id },
-    include: {
-      user: { select: { id: true, channelName: true, profilePicture: true, banner: true, subscriberCount: true } },
-      comment: true, 
-      likes: true,
-    }
-  })
-  if(user.status) {
-    //check if the user has liked
-    const like = await prisma.like.findFirst({
-      where: {
-        userId: user.userId,
-        uploadId: req.params.id
+    const user = await isSignedIn(req);
+    const video = await prisma.uploads.findUnique({
+      where: { id: req.params.id },
+      include: {
+        user: { select: { id: true, channelName: true, profilePicture: true, banner: true, subscriberCount: true } },
+        comment: true,
+        likes: true,
       }
-    });
-    if (like) {
-      user.likeStatus = "liked";
+    })
+    if (user.status) {
+      //check if the user has liked
+      const like = await prisma.like.findFirst({
+        where: {
+          userId: user.userId,
+          uploadId: req.params.id
+        }
+      });
+      if (like) {
+        user.likeStatus = "liked";
+      } else {
+        user.likeStatus = "unliked";
+      }
     } else {
-      user.likeStatus = "unliked";
+      user.likeStatus = null;
     }
-  } else {
-    user.likeStatus = null;
+    if (video.videoUrl.split('.')[2] == "mp4") {
+      const videoUrl = await generateGetUrl(video.videoUrl);
+      video.videoUrl = videoUrl;
+    }
+    if (!video) res.status(400).send("Unable to get videos");
+    res.json({
+      video, user
+    })
+  } catch (err) {
+    console.error(err);
   }
-  if (video.videoUrl.split('.')[2] == "mp4") {
-    const videoUrl = await generateGetUrl(video.videoUrl);
-    video.videoUrl = videoUrl;
-  }
-  if (!video) res.status(400).send("Unable to get videos");
-  res.json({
-    video, user
-  })
-} catch(err) {
-  console.error(err); 
-}
 })
 
 app.get("/channel/:channelName", async (req, res) => {
@@ -279,9 +282,9 @@ app.post("/comment", authMiddleWare, async (req, res) => {
     const userId = await prisma.user.findFirst({
       where: {
         username: req.body.username
-      }, 
+      },
       select: {
-        id:true
+        id: true
       }
     })
     const comment = await prisma.comment.create({
@@ -336,6 +339,30 @@ app.post("/upload", authMiddleWare, async (req, res) => {
   })
 
   res.send(uploaded)
+})
+
+app.post("/like", authMiddleWare, async (req, res) => {
+  try {
+    const uploadId = req.body.uploadId;
+    const userId = await prisma.user.findFirst({
+      where: {
+        username: req.body.username
+      },
+      select: {
+        id: true
+      }
+    })
+    const like = await prisma.like.create({
+      data: {
+        userId: userId.id,
+        uploadId: uploadId
+      }
+    })
+    res.json(like)
+  } catch (err) {
+    console.error(err)
+    return
+  }
 })
 
 app.post("/getPresignedUrlVideo", async (req, res) => {
@@ -413,6 +440,32 @@ app.delete("/unsubscribe", authMiddleWare, async (req, res) => {
   })
   res.json(relation)
 })
+
+app.post("/unlike", authMiddleWare, async (req, res) => { 
+  try {
+  const uploadId = req.body.uploadId;
+    const userId = await prisma.user.findFirst({
+      where: {
+        username: req.body.username
+      },
+      select: {
+        id: true
+      }
+    })
+  const unlike = await prisma.like.delete({
+    where: {
+      userId_uploadId: {
+        uploadId: uploadId,
+        userId: userId.id
+      }
+    }
+  })
+  res.json(unlike)
+} catch(err) {
+  console.error(err)
+}
+})
+
 
 async function generateGetUrl(path: string) {
   const getUrl = await getSignedUrl(
