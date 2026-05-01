@@ -53,6 +53,7 @@ function authMiddleWare(req: express.Request, res: express.Response, next: expre
     req.body.username = decoded.username;
     next();
   } catch (err) {
+    console.error("error verifying token", err)
     return res.status(400).send("Unauthorized");
   }
 }
@@ -173,6 +174,36 @@ app.get("/videos", async (req, res) => {
   }))
   if (!videos) return res.status(400).send("Unable to get videos");
   res.json(videos)
+})
+
+app.post("/watch-history", authMiddleWare, async (req, res)  => {
+  const userId = await prisma.user.findFirst({
+      where: {
+        username: req.body.username
+      },
+      select: {
+        id: true
+      }
+    })
+  const watchHistory = await prisma.watchHistory.findMany({
+    where: {
+      userId: userId.id
+    },
+    include: { user: { select: { id: true, channelName: true, profilePicture: true, banner: true } }, uploads: { select: { id: true, thumbnail: true, description: true }} },
+    orderBy: {
+    createdAt: 'desc', // 'desc' for descending, 'asc' for ascending
+  }
+  })
+  const watchHistoryWithUrls = await Promise.all(watchHistory.map(async (entry) => {
+    if (entry.uploads.thumbnail.split('.')[2] == "jpeg") {
+      const thumbnailUrl = await generateGetUrl(entry.uploads.thumbnail);
+      entry.uploads.thumbnail = thumbnailUrl;
+      return entry;
+    } else {
+      return entry;
+    }
+  }))
+  res.json(watchHistoryWithUrls);
 })
 
 app.get("/videos/:id", async (req, res) => {
